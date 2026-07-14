@@ -1,1 +1,4 @@
 db_connect.php
+admin_config.php
+uploads/screenshots/*
+!uploads/screenshots/.gitkeep
