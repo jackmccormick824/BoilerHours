@@ -4,9 +4,15 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit("Method not allowed");
 }
 
-require_once __DIR__ . "/db_connect.php";
-
 header("Content-Type: application/json");
+
+if (!file_exists(__DIR__ . "/db_connect.php")) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Server isn't configured yet."]);
+    exit;
+}
+
+require_once __DIR__ . "/db_connect.php";
 
 function fail($msg) {
     http_response_code(400);

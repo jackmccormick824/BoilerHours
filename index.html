@@ -55,20 +55,11 @@
   .nav-logo { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 18px; font-weight: 800; color: var(--gold); letter-spacing: -0.3px; }
   .nav-divider { width: 1px; height: 18px; background: var(--border); }
   .nav-sub { color: #555; font-size: 12px; }
-  .nav-clock { display: flex; align-items: center; gap: 8px; font-family: monospace; flex-shrink: 0; margin-left: auto; }
-  .nav-clock-time { font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
-  .nav-clock-sep { width: 1px; height: 14px; background: var(--border); }
-  .nav-clock-day { font-size: 12px; color: #666; letter-spacing: 0.05em; }
-  .nav-clock-day.active { color: var(--gold); }
   nav a { color: #555; font-size: 12px; text-decoration: none; flex-shrink: 0; }
   nav a:hover { color: var(--gold); }
 
   @media (max-width: 480px) {
     .nav-divider, .nav-sub { display: none; }
-    .nav-clock-sep { display: none; }
-    .nav-clock { gap: 4px; }
-    .nav-clock-time { font-size: 12px; }
-    .nav-clock-day { font-size: 11px; }
     nav { padding: 0 12px; }
   }
 
@@ -172,11 +163,6 @@
     <a href="leaderboard.php" style="padding:6px 12px;font-size:12px;font-weight:600;letter-spacing:0.04em">Leaderboard</a>
     <a href="rules.php" style="padding:6px 12px;font-size:12px;font-weight:600;letter-spacing:0.04em">Rules</a>
   </div>
-  <div class="nav-clock">
-    <span class="nav-clock-time" id="nav-time">12:00 PM</span>
-    <div class="nav-clock-sep"></div>
-    <span class="nav-clock-day" id="nav-day">Saturday</span>
-  </div>
 </nav>
 
 <main>
@@ -198,24 +184,24 @@
       <div class="submit-error" id="submit-error"></div>
       <div class="form-group">
         <label>YOUR NAME</label>
-        <input type="text" id="sub-name" placeholder="Jane Doe" />
+        <input type="text" id="sub-name" placeholder="Jane Doe" required />
       </div>
       <div class="form-group">
         <label>PURDUE EMAIL</label>
-        <input type="email" id="sub-email" placeholder="jdoe@purdue.edu" />
+        <input type="email" id="sub-email" placeholder="jdoe@purdue.edu" required />
       </div>
       <div class="form-group">
         <label>PROFESSOR NAME</label>
-        <input type="text" id="sub-professor" placeholder="Dr. Smith" />
+        <input type="text" id="sub-professor" placeholder="Dr. Smith" required />
       </div>
       <div class="form-group">
         <label>COURSE (e.g. CS 25200)</label>
-        <input type="text" id="sub-course" placeholder="CS 25200" />
+        <input type="text" id="sub-course" placeholder="CS 25200" required />
       </div>
       <div class="form-group">
         <label>SCREENSHOT OF OFFICE HOURS <span style="color:var(--gold)">*</span></label>
         <div class="photo-upload" id="photo-upload-area">
-          <input type="file" id="sub-screenshot" accept="image/*,application/pdf" onchange="previewPhoto(this)" />
+          <input type="file" id="sub-screenshot" accept="image/*,application/pdf" onchange="previewPhoto(this)" required />
           <div class="photo-upload-icon">📷</div>
           <div class="photo-upload-text">Drop a screenshot here or <strong>browse</strong><br><span style="font-size:11px;color:#444">Image or PDF, up to 5MB. Syllabus, course page, etc.</span></div>
         </div>
@@ -243,26 +229,6 @@
 <footer><span>BoilerHours</span> · Not affiliated with Purdue University · <a href="mailto:contact@boilerhours.com" style="color:#555;text-decoration:none">contact@boilerhours.com</a></footer>
 
 <script>
-const DAY_FULL = {Sun:"Sunday",Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday"};
-const JS_DAY = {0:"Sun",1:"Mon",2:"Tue",3:"Wed",4:"Thu",5:"Fri"};
-
-function todayAbbr() { return JS_DAY[new Date().getDay()] || null; }
-
-function updateClock() {
-  const d  = new Date();
-  const h  = d.getHours(), m = d.getMinutes();
-  const ap = h >= 12 ? "PM" : "AM";
-  const h12 = h % 12 || 12;
-  const tEl = document.getElementById("nav-time");
-  const dEl = document.getElementById("nav-day");
-  if (tEl) tEl.textContent = `${h12}:${String(m).padStart(2,"0")} ${ap}`;
-  const today = todayAbbr();
-  if (dEl) {
-    dEl.textContent = today ? DAY_FULL[today] : d.toLocaleDateString("en-US",{weekday:"long"});
-    dEl.className = "nav-clock-day" + (today ? " active" : "");
-  }
-}
-
 function previewPhoto(input) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
@@ -282,6 +248,8 @@ function showPage(page) {
   document.getElementById('tab-submit').classList.toggle('active', page === 'submit');
   window.scrollTo(0, 0);
 }
+
+if (window.location.hash === '#submit') showPage('submit');
 
 function submitHours() {
   const name       = document.getElementById('sub-name').value.trim();
@@ -362,9 +330,6 @@ function submitHours() {
     spinner.style.display = 'none';
   });
 }
-
-updateClock();
-setInterval(updateClock, 1000);
 </script>
 </body>
 </html>

@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if (!file_exists(__DIR__ . "/db_connect.php") || !file_exists(__DIR__ . "/admin_config.php")) {
+    http_response_code(500);
+    exit("Server isn't configured yet: db_connect.php or admin_config.php is missing.");
+}
+
 require_once __DIR__ . "/db_connect.php";
 require_once __DIR__ . "/admin_config.php";
 
