@@ -7,13 +7,11 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 header("Content-Type: application/json");
 
 if (!file_exists(__DIR__ . "/db_connect.php")) {
-    http_response_code(500);
     echo json_encode(["success" => false, "error" => "Server isn't configured yet."]);
     exit;
 }
 
 function fail($msg) {
-    http_response_code(400);
     echo json_encode(["success" => false, "error" => $msg]);
     exit;
 }
@@ -102,7 +100,6 @@ try {
     $conn->close();
     echo json_encode(["success" => true]);
 } catch (\Throwable $e) {
-    http_response_code(500);
     echo json_encode(["success" => false, "error" => "Server error: " . $e->getMessage()]);
 }
 ?>
