@@ -157,7 +157,7 @@
 <div class="contest-banner" id="contest-banner">
   <button class="contest-banner-close" onclick="document.getElementById('contest-banner').style.display='none'" aria-label="Dismiss">&times;</button>
   <div class="contest-banner-title">Submit office hours Aug 24 to Sept 7 and win $100 or $50</div>
-  <div class="contest-banner-sub">Screenshot required, verified entries only. <button class="contest-banner-link" onclick="showPage('submit')">Submit yours</button></div>
+  <div class="contest-banner-sub">Screenshot required, verified entries only. <a href="rules.php" class="contest-banner-link" style="text-decoration:underline">See the rules</a></div>
 </div>
 
 <nav>
@@ -169,6 +169,8 @@
   <div class="nav-tabs">
     <button class="nav-tab active" id="tab-home" onclick="showPage('home')">Home</button>
     <button class="nav-tab" id="tab-submit" onclick="showPage('submit')">Submit Hours</button>
+    <a href="leaderboard.php" style="padding:6px 12px;font-size:12px;font-weight:600;letter-spacing:0.04em">Leaderboard</a>
+    <a href="rules.php" style="padding:6px 12px;font-size:12px;font-weight:600;letter-spacing:0.04em">Rules</a>
   </div>
   <div class="nav-clock">
     <span class="nav-clock-time" id="nav-time">12:00 PM</span>
@@ -191,28 +193,40 @@
 <div class="page" id="page-submit">
   <div class="submit-wrap">
     <h2>Submit Office Hours</h2>
-    <p>Don't see your class listed? Enter your course and attach a photo of the office hours schedule — from your syllabus, course page, or anywhere else.</p>
+    <p>Enter the course and professor, and attach a screenshot proving the office hours — from your syllabus, course page, or anywhere else.</p>
     <div id="submit-form">
       <div class="submit-error" id="submit-error"></div>
+      <div class="form-group">
+        <label>YOUR NAME</label>
+        <input type="text" id="sub-name" placeholder="Jane Doe" />
+      </div>
+      <div class="form-group">
+        <label>PURDUE EMAIL</label>
+        <input type="email" id="sub-email" placeholder="jdoe@purdue.edu" />
+      </div>
+      <div class="form-group">
+        <label>PROFESSOR NAME</label>
+        <input type="text" id="sub-professor" placeholder="Dr. Smith" />
+      </div>
       <div class="form-group">
         <label>COURSE (e.g. CS 25200)</label>
         <input type="text" id="sub-course" placeholder="CS 25200" />
       </div>
       <div class="form-group">
-        <label>YOUR NAME (optional)</label>
-        <input type="text" id="sub-name" placeholder="Jane Doe" />
-      </div>
-      <div class="form-group">
-        <label>PHOTO OF OFFICE HOURS SCHEDULE <span style="color:var(--gold)">*</span></label>
+        <label>SCREENSHOT OF OFFICE HOURS <span style="color:var(--gold)">*</span></label>
         <div class="photo-upload" id="photo-upload-area">
-          <input type="file" id="sub-photo" accept="image/*" onchange="previewPhoto(this)" />
+          <input type="file" id="sub-screenshot" accept="image/*,application/pdf" onchange="previewPhoto(this)" />
           <div class="photo-upload-icon">📷</div>
-          <div class="photo-upload-text">Drop a photo here or <strong>browse</strong><br><span style="font-size:11px;color:#444">Screenshot of syllabus, course page, etc.</span></div>
+          <div class="photo-upload-text">Drop a screenshot here or <strong>browse</strong><br><span style="font-size:11px;color:#444">Image or PDF, up to 5MB. Syllabus, course page, etc.</span></div>
         </div>
         <div class="photo-preview" id="photo-preview">
           <img id="photo-preview-img" src="" alt="Preview" />
           <div class="photo-name" id="photo-name"></div>
         </div>
+      </div>
+      <div class="form-group">
+        <label>VENMO OR ZELLE HANDLE (optional, needed if you win)</label>
+        <input type="text" id="sub-venmo" placeholder="@janedoe" />
       </div>
       <div class="sending-spinner" id="sending-spinner">Sending your submission...</div>
       <button class="submit-btn" id="submit-btn" onclick="submitHours()">SEND TO BOILERHOURS</button>
@@ -270,21 +284,44 @@ function showPage(page) {
 }
 
 function submitHours() {
-  const course   = document.getElementById('sub-course').value.trim();
-  const name     = document.getElementById('sub-name').value.trim();
-  const photoInput = document.getElementById('sub-photo');
-  const hasPhoto = photoInput.files.length > 0;
-  const errEl    = document.getElementById('submit-error');
+  const name       = document.getElementById('sub-name').value.trim();
+  const email      = document.getElementById('sub-email').value.trim();
+  const professor  = document.getElementById('sub-professor').value.trim();
+  const course     = document.getElementById('sub-course').value.trim();
+  const venmo      = document.getElementById('sub-venmo').value.trim();
+  const fileInput  = document.getElementById('sub-screenshot');
+  const hasFile    = fileInput.files.length > 0;
+  const errEl      = document.getElementById('submit-error');
 
   errEl.style.display = 'none';
 
+  if (!name) {
+    errEl.textContent = 'Please enter your name.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!email) {
+    errEl.textContent = 'Please enter your Purdue email.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!professor) {
+    errEl.textContent = 'Please enter the professor\'s name.';
+    errEl.style.display = 'block';
+    return;
+  }
   if (!course) {
     errEl.textContent = 'Please enter the course name.';
     errEl.style.display = 'block';
     return;
   }
-  if (!hasPhoto) {
-    errEl.textContent = 'Please attach a photo of the office hours schedule.';
+  if (!hasFile) {
+    errEl.textContent = 'Please attach a screenshot of the office hours.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (fileInput.files[0].size > 5 * 1024 * 1024) {
+    errEl.textContent = 'Screenshot must be under 5MB.';
     errEl.style.display = 'block';
     return;
   }
@@ -295,9 +332,12 @@ function submitHours() {
   spinner.style.display = 'block';
 
   const formData = new FormData();
-  formData.append('course', course);
-  formData.append('name', name);
-  formData.append('photo', photoInput.files[0]);
+  formData.append('full_name', name);
+  formData.append('purdue_email', email);
+  formData.append('professor_name', professor);
+  formData.append('course_name', course);
+  formData.append('venmo_handle', venmo);
+  formData.append('screenshot', fileInput.files[0]);
 
   fetch('/submit.php', {
     method: 'POST',

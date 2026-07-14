@@ -4,56 +4,87 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit("Method not allowed");
 }
 
-$to      = "contact@boilerhours.com";
-$course  = isset($_POST["course"]) ? strip_tags(trim($_POST["course"])) : "";
-$name    = isset($_POST["name"])   ? strip_tags(trim($_POST["name"]))   : "Anonymous";
+require_once __DIR__ . "/db_connect.php";
 
-if (!$course) {
+header("Content-Type: application/json");
+
+function fail($msg) {
     http_response_code(400);
-    echo json_encode(["success" => false, "error" => "Course is required"]);
+    echo json_encode(["success" => false, "error" => $msg]);
     exit;
 }
 
-$subject = "Office Hours Submission: $course";
+$full_name      = isset($_POST["full_name"])      ? trim($_POST["full_name"])      : "";
+$purdue_email   = isset($_POST["purdue_email"])   ? trim($_POST["purdue_email"])   : "";
+$professor_name = isset($_POST["professor_name"]) ? trim($_POST["professor_name"]) : "";
+$course_name    = isset($_POST["course_name"])    ? trim($_POST["course_name"])    : "";
+$venmo_handle   = isset($_POST["venmo_handle"])   ? trim($_POST["venmo_handle"])   : "";
 
-// ── Handle optional photo attachment ─────────────────────────────────────────
-$boundary = md5(time());
-$headers  = "From: contact@boilerhours.com\r\n";
-$headers .= "Reply-To: contact@boilerhours.com\r\n";
-$headers .= "MIME-Version: 1.0\r\n";
+if ($full_name === "")      fail("Full name is required.");
+if ($purdue_email === "")   fail("Purdue email is required.");
+if (!filter_var($purdue_email, FILTER_VALIDATE_EMAIL)) fail("Please enter a valid email address.");
+if ($professor_name === "") fail("Professor name is required.");
+if ($course_name === "")    fail("Course name is required.");
 
-if (!empty($_FILES["photo"]["tmp_name"]) && $_FILES["photo"]["error"] === UPLOAD_ERR_OK) {
-    $filename    = basename($_FILES["photo"]["name"]);
-    $filetype    = mime_content_type($_FILES["photo"]["tmp_name"]);
-    $filedata    = chunk_split(base64_encode(file_get_contents($_FILES["photo"]["tmp_name"])));
-
-    $headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
-
-    $body  = "--$boundary\r\n";
-    $body .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
-    $body .= "Course: $course\r\n";
-    $body .= "Submitted by: $name\r\n";
-    $body .= "--$boundary\r\n";
-    $body .= "Content-Type: $filetype; name=\"$filename\"\r\n";
-    $body .= "Content-Transfer-Encoding: base64\r\n";
-    $body .= "Content-Disposition: attachment; filename=\"$filename\"\r\n\r\n";
-    $body .= "$filedata\r\n";
-    $body .= "--$boundary--";
-} else {
-    // No photo — plain text email
-    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-    $body  = "Course: $course\r\n";
-    $body .= "Submitted by: $name\r\n";
-    $body .= "(No photo attached)\r\n";
+if (empty($_FILES["screenshot"]["tmp_name"]) || $_FILES["screenshot"]["error"] !== UPLOAD_ERR_OK) {
+    fail("A screenshot of the office hours is required.");
 }
 
-$sent = mail($to, $subject, $body, $headers);
+$file = $_FILES["screenshot"];
 
-header("Content-Type: application/json");
-if ($sent) {
+if ($file["size"] > 5 * 1024 * 1024) {
+    fail("Screenshot must be under 5MB.");
+}
+
+$allowedTypes = [
+    "image/jpeg" => "jpg",
+    "image/png"  => "png",
+    "image/gif"  => "gif",
+    "image/webp" => "webp",
+    "application/pdf" => "pdf",
+];
+$mimeType = mime_content_type($file["tmp_name"]);
+if (!isset($allowedTypes[$mimeType])) {
+    fail("Screenshot must be an image or PDF.");
+}
+$ext = $allowedTypes[$mimeType];
+
+$uploadDir = __DIR__ . "/uploads/screenshots/";
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0755, true);
+}
+
+$safeName = preg_replace("/[^A-Za-z0-9_-]/", "_", pathinfo($file["name"], PATHINFO_FILENAME));
+$filename = time() . "_" . $safeName . "." . $ext;
+$destPath = $uploadDir . $filename;
+
+if (!move_uploaded_file($file["tmp_name"], $destPath)) {
+    fail("Could not save the uploaded screenshot.");
+}
+
+$screenshot_path = "uploads/screenshots/" . $filename;
+
+$stmt = $conn->prepare(
+    "INSERT INTO submissions (full_name, purdue_email, professor_name, course_name, screenshot_path, venmo_handle)
+     VALUES (?, ?, ?, ?, ?, ?)"
+);
+$stmt->bind_param(
+    "ssssss",
+    $full_name,
+    $purdue_email,
+    $professor_name,
+    $course_name,
+    $screenshot_path,
+    $venmo_handle
+);
+
+if ($stmt->execute()) {
     echo json_encode(["success" => true]);
 } else {
     http_response_code(500);
-    echo json_encode(["success" => false, "error" => "Mail failed to send"]);
+    echo json_encode(["success" => false, "error" => "Could not save your submission."]);
 }
+
+$stmt->close();
+$conn->close();
 ?>
