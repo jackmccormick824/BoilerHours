@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BoilerHours | Purdue Office Hours</title>
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFhMWExYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMyIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjQ0ZCOTkxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CPC90ZXh0Pgo8L3N2Zz4=" type="image/svg+xml">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root {
     --gold: #CFB991;
@@ -22,6 +20,28 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ── CONTEST BANNER ── */
+  .contest-banner {
+    background: var(--gold); color: #111;
+    padding: 22px 20px; text-align: center;
+    position: relative;
+  }
+  .contest-banner-title { font-size: 20px; font-weight: 900; letter-spacing: -0.2px; margin-bottom: 4px; }
+  .contest-banner-sub { font-size: 14px; font-weight: 600; opacity: 0.85; }
+  .contest-banner-link { color: #111; text-decoration: underline; font-weight: 800; cursor: pointer; background: none; border: none; font: inherit; padding: 0; }
+  .contest-banner-close {
+    position: absolute; top: 12px; right: 16px;
+    background: none; border: none; color: #111; opacity: 0.6;
+    font-size: 20px; line-height: 1; cursor: pointer; padding: 4px;
+    font-weight: 700;
+  }
+  .contest-banner-close:hover { opacity: 1; }
+  @media (max-width: 480px) {
+    .contest-banner { padding: 18px 40px 18px 16px; }
+    .contest-banner-title { font-size: 16px; }
+    .contest-banner-sub { font-size: 12px; }
+  }
 
   nav {
     position: sticky; top: 0; z-index: 1000;
@@ -65,164 +85,14 @@
   .hero h1 span { color: var(--gold); }
   .hero p { color: var(--faint); font-size: 14px; max-width: 420px; margin: 0 auto; }
 
-  .search-wrap { position: relative; margin-bottom: 28px; }
-  .search-row { display: flex; background: var(--bg2); border-radius: 12px; border: 1px solid var(--border); }
-  .search-row input {
-    flex: 1; background: transparent; border: none; outline: none;
-    color: var(--text); font-size: 15px; padding: 14px 16px;
-    font-family: inherit; border-radius: 12px 0 0 12px;
+  .cta-btn {
+    display: inline-block; margin-top: 24px;
+    background: var(--gold); color: #111; font-weight: 800; font-size: 13px;
+    letter-spacing: 0.06em; border: none; padding: 13px 28px;
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    transition: opacity 0.15s;
   }
-  .search-row input::placeholder { color: #555; }
-  .search-btn {
-    background: var(--gold); color: #000; border: none; padding: 0 24px;
-    font-weight: 800; font-size: 13px; cursor: pointer;
-    border-radius: 0 12px 12px 0; letter-spacing: 0.06em; font-family: inherit;
-    transition: background 0.15s;
-  }
-  .search-btn:hover { background: #ddc9a0; }
-
-  .suggestions {
-    position: absolute; top: calc(100% + 5px); left: 0; right: 0;
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 11px; overflow: hidden;
-    z-index: 500; box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-    display: none;
-  }
-  .suggestions.open { display: block; }
-  .sugg-item {
-    padding: 11px 16px; cursor: pointer;
-    display: flex; gap: 14px; align-items: center;
-    border-bottom: 1px solid var(--border);
-    transition: background 0.1s;
-  }
-  .sugg-item:last-child { border-bottom: none; }
-  .sugg-item:hover { background: var(--bg3); }
-  .sugg-code { color: var(--gold); font-weight: 700; font-family: monospace; font-size: 12px; min-width: 76px; }
-  .sugg-title { color: var(--sub); font-size: 12px; }
-
-  .pills { text-align: center; margin-bottom: 40px; }
-  .pills-label { color: #555; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-  .pills-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
-  .pill {
-    background: var(--bg2); border: 1px solid var(--border); color: var(--sub);
-    padding: 7px 14px; border-radius: 100px; cursor: pointer;
-    font-size: 12px; font-family: monospace; font-weight: 600; transition: all 0.15s;
-  }
-  .pill:hover { border-color: var(--gold); color: var(--gold); background: rgba(207,185,145,0.08); }
-
-  .day-tabs-wrap { margin-bottom: 20px; }
-  .day-tabs { display: flex; gap: 6px; }
-  .day-tab {
-    flex: 1; padding: 10px 0; border-radius: 9px;
-    border: 1px solid var(--border); background: var(--bg2);
-    color: var(--faint); font-weight: 500; font-size: 13px;
-    cursor: pointer; font-family: inherit; transition: all 0.15s; text-align: center;
-  }
-  .day-tab:hover { color: #ccc; border-color: var(--border2); }
-  .day-dot { width: 4px; height: 4px; border-radius: 50%; margin: 3px auto 0; opacity: 0.8; }
-
-  .result-card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 16px; padding: 24px; margin-bottom: 16px;
-  }
-  .result-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
-  .course-badge {
-    background: var(--gold); color: #000; font-weight: 900; font-size: 12px;
-    padding: 5px 13px; border-radius: 7px; letter-spacing: 0.05em;
-    font-family: monospace; flex-shrink: 0; align-self: flex-start;
-  }
-  .course-title { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.3; }
-  .course-note { color: var(--faint); font-size: 11px; margin-top: 4px; }
-  .day-badges { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
-  .day-badge { border-radius: 5px; padding: 3px 9px; font-size: 10px; font-weight: 700; font-family: monospace; }
-
-  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 620px) { .split { grid-template-columns: 1fr; } }
-  .section-label { color: var(--faint); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
-
-  .slots-scroll { max-height: 360px; overflow-y: auto; padding-right: 4px; }
-  .slots-scroll::-webkit-scrollbar { width: 3px; }
-  .slots-scroll::-webkit-scrollbar-track { background: transparent; }
-  .slots-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-  .slot {
-    display: flex; align-items: center; gap: 12px;
-    padding: 9px 12px; border-radius: 9px; margin-bottom: 3px;
-    border: 1px solid transparent; transition: opacity 0.2s;
-  }
-  .slot:hover { background: var(--bg3); }
-  .slot.now { background: rgba(207,185,145,0.1); border-color: rgba(207,185,145,0.35); }
-  .slot.past { opacity: 0.3; }
-  .now-badge {
-    background: var(--gold); color: #000; font-size: 8px; border-radius: 4px;
-    padding: 2px 6px; font-weight: 900; flex-shrink: 0; width: 36px;
-    text-align: center; display: none; letter-spacing: 0.05em;
-  }
-  .slot.now .now-badge { display: inline-block; }
-  .slot-spacer { width: 36px; flex-shrink: 0; }
-  .slot.now .slot-spacer { display: none; }
-  .slot-time { color: var(--sub); font-size: 12px; font-family: monospace; min-width: 112px; flex-shrink: 0; font-weight: 500; }
-  .slot.now .slot-time { color: var(--gold-dim); }
-  .slot-name { color: var(--text); font-size: 14px; font-weight: 500; }
-  .slot.now .slot-name { color: #fff; font-weight: 700; }
-  .slot.past .slot-name { color: var(--faint); }
-
-  .ma-slot {
-    padding: 11px 14px; border-radius: 10px; margin-bottom: 6px;
-    background: var(--bg3); border: 1px solid var(--border); transition: opacity 0.2s;
-  }
-  .ma-slot.now { background: rgba(207,185,145,0.1); border-color: rgba(207,185,145,0.35); }
-  .ma-slot.past { opacity: 0.3; }
-  .ma-slot-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .ma-now-badge { background: var(--gold); color: #000; font-size: 8px; border-radius: 4px; padding: 2px 6px; font-weight: 900; display: none; letter-spacing: 0.05em; }
-  .ma-slot.now .ma-now-badge { display: inline-block; }
-  .ma-slot-time { color: var(--sub); font-weight: 700; font-size: 13px; font-family: monospace; }
-  .ma-slot.now .ma-slot-time { color: var(--gold); }
-  .ma-slot-range { color: #555; font-size: 11px; }
-  .ma-ta-list { display: flex; flex-wrap: wrap; gap: 5px; }
-  .ma-ta { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #ccc; display: flex; align-items: center; gap: 5px; }
-  .ma-ta-course { color: var(--gold); font-weight: 700; font-size: 10px; background: rgba(207,185,145,0.12); border-radius: 3px; padding: 1px 5px; }
-
-  #map-container { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); height: 320px; }
-  #map { height: 100%; width: 100%; }
-  .map-caption { color: var(--sub); font-size: 12px; margin-top: 8px; line-height: 1.6; }
-  .map-caption-full { color: var(--text); font-size: 13px; font-weight: 600; margin-top: 8px; }
-  .map-caption-addr { color: var(--gold); font-size: 12px; font-weight: 700; font-family: monospace; margin-top: 2px; letter-spacing: 0.03em; }
-  .map-caption strong { color: var(--gold); }
-
-  .empty { text-align: center; padding: 32px 0; color: #555; font-size: 14px; }
-  .not-found { text-align: center; padding: 60px 0; }
-  .not-found-icon { font-size: 40px; margin-bottom: 12px; }
-  .not-found-title { font-size: 16px; color: #888; font-weight: 600; margin-bottom: 5px; }
-  .not-found-sub { font-size: 13px; color: #555; }
-
-  footer { border-top: 1px solid var(--border); text-align: center; padding: 10px 24px; color: #444; font-size: 11px; }
-  footer span { color: var(--gold-dim); }
-
-  .map-marker { background: transparent; color: #fff; font-weight: 700; font-size: 12px; font-family: monospace; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7); pointer-events: none; }
-  .leaflet-div-icon { background: none !important; border: none !important; }
-  .leaflet-popup-content-wrapper { background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-radius: 10px; font-family: 'Segoe UI', sans-serif; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
-  .leaflet-popup-tip { background: var(--bg2); }
-  .leaflet-popup-content { margin: 12px 16px; }
-  .popup-bldg { color: var(--gold); font-weight: 800; font-size: 14px; }
-  .popup-full { color: var(--sub); font-size: 12px; margin-top: 4px; }
-  .popup-room { color: #666; font-size: 11px; margin-top: 2px; }
-  .leaflet-popup-close-button { color: #666 !important; }
-  .mode-tag { font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 7px; letter-spacing: 0.04em; flex-shrink: 0; }
-  .mode-tag.both { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
-  .mode-tag.online { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.25); }
-  .labs-section { margin-top: 16px; }
-  .labs-toggle { background: none; border: 1px solid var(--border); color: var(--sub); font-size: 12px; font-family: inherit; padding: 7px 14px; border-radius: 8px; cursor: pointer; width: 100%; text-align: left; font-weight: 600; letter-spacing: 0.04em; transition: all 0.15s; }
-  .labs-toggle:hover { border-color: var(--gold); color: var(--gold); }
-  .lab-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 8px; margin-bottom: 3px; border: 1px solid transparent; }
-  .lab-item.active { background: rgba(207,185,145,0.08); border-color: rgba(207,185,145,0.3); }
-  .lab-item.past { opacity: 0.3; }
-  .lab-sec { background: var(--bg3); color: var(--gold); font-family: monospace; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 5px; flex-shrink: 0; min-width: 36px; text-align: center; margin-top: 1px; }
-  .lab-info { flex: 1; min-width: 0; }
-  .lab-time { color: var(--sub); font-size: 11px; font-family: monospace; }
-  .lab-room { color: #555; font-size: 11px; margin-left: 6px; }
-  .lab-lead { color: var(--text); font-size: 13px; font-weight: 600; margin-top: 1px; }
-  .lab-tas { color: #666; font-size: 11px; margin-top: 1px; }
+  .cta-btn:hover { opacity: 0.88; }
 
   .page { display: none; }
   .page.active { display: block; }
@@ -230,6 +100,9 @@
   .nav-tab { background: none; border: none; color: #555; font-size: 12px; font-family: inherit; font-weight: 600; padding: 6px 12px; border-radius: 20px; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; }
   .nav-tab:hover { color: var(--gold); }
   .nav-tab.active { color: var(--gold); background: rgba(207,185,145,0.1); }
+
+  footer { border-top: 1px solid var(--border); text-align: center; padding: 10px 24px; color: #444; font-size: 11px; }
+  footer span { color: var(--gold-dim); }
 
   /* ── SUBMIT PAGE ── */
   .submit-wrap { max-width: 560px; margin: 0 auto; padding: 20px 0 40px; }
@@ -280,7 +153,12 @@
 </script>
 </head>
 <body>
-<body>
+
+<div class="contest-banner" id="contest-banner">
+  <button class="contest-banner-close" onclick="document.getElementById('contest-banner').style.display='none'" aria-label="Dismiss">&times;</button>
+  <div class="contest-banner-title">Submit office hours Aug 24 to Sept 7 and win $100 or $50</div>
+  <div class="contest-banner-sub">Screenshot required, verified entries only. <button class="contest-banner-link" onclick="showPage('submit')">Submit yours</button></div>
+</div>
 
 <nav>
   <div class="nav-left">
@@ -289,7 +167,7 @@
     <span class="nav-sub">Purdue Office Hours</span>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" id="tab-home" onclick="showPage('home')">Find Hours</button>
+    <button class="nav-tab active" id="tab-home" onclick="showPage('home')">Home</button>
     <button class="nav-tab" id="tab-submit" onclick="showPage('submit')">Submit Hours</button>
   </div>
   <div class="nav-clock">
@@ -302,60 +180,10 @@
 <main>
 <div class="page active" id="page-home">
   <div class="hero">
-    <h1>Find office hours.<br><span>Actually show up.</span></h1>
-    <p>Search any course. See who's available, when, and where.</p>
-  </div>
-
-  <div class="search-wrap">
-    <div class="search-row">
-      <input type="text" id="search-input" placeholder="CS 24000, TDM 10200, CS 18200, MA 16100..." autocomplete="off"/>
-      <button class="search-btn" onclick="doSearch()">SEARCH</button>
-    </div>
-    <div class="suggestions" id="suggestions"></div>
-  </div>
-
-  <div class="pills" id="pills-section">
-    <div class="pills-label">Available Courses</div>
-    <div class="pills-row" id="pills-row"></div>
-  </div>
-
-  <div id="day-tabs-section" style="display:none">
-    <div class="day-tabs-wrap">
-      <div class="day-tabs" id="day-tabs"></div>
-    </div>
-  </div>
-
-  <div id="result-outer" style="display:none">
-    <div class="result-card">
-      <div class="result-header">
-        <span class="course-badge" id="r-badge"></span>
-        <div>
-          <div class="course-title" id="r-title"></div>
-          <div id="r-room" style="color:var(--gold);font-size:12px;font-weight:700;font-family:monospace;margin-top:3px;letter-spacing:0.03em"></div>
-          <div class="course-note" id="r-note"></div>
-        </div>
-      </div>
-      <div class="day-badges" id="r-daybadges"></div>
-      <div class="split">
-        <div>
-          <div class="section-label" id="r-daylabel">Monday Office Hours</div>
-          <div class="slots-scroll" id="r-slots"></div>
-        </div>
-        <div>
-          <div class="section-label">Campus Location</div>
-          <div id="map-container"><div id="map"></div></div>
-          <div class="map-caption" id="map-caption"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="notfound-section" style="display:none">
-    <div class="not-found">
-      <div class="not-found-icon">🔍</div>
-      <div class="not-found-title">No course found</div>
-      <div class="not-found-sub">Try: CS 18200 · EAPS 11200 · MA 15300 · MA 16100 · MA 16200 · MA 26100</div>
-    </div>
+    <div class="hero-badge">Fall 2026</div>
+    <h1>We're rebuilding<br><span>the office hours list.</span></h1>
+    <p>Office hours aren't listed yet for this semester. Help fill them back in, submit what you know and you could win cash.</p>
+    <button class="cta-btn" onclick="showPage('submit')">SUBMIT OFFICE HOURS</button>
   </div>
 </div>
 
@@ -401,442 +229,14 @@
 <footer><span>BoilerHours</span> · Not affiliated with Purdue University · <a href="mailto:contact@boilerhours.com" style="color:#555;text-decoration:none">contact@boilerhours.com</a></footer>
 
 <script>
-const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
 const DAY_FULL = {Sun:"Sunday",Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday"};
 const JS_DAY = {0:"Sun",1:"Mon",2:"Tue",3:"Wed",4:"Thu",5:"Fri"};
-const DAY_COLORS = {Sun:"#e879f9",Mon:"#60a5fa",Tue:"#34d399",Wed:"#fbbf24",Thu:"#a78bfa",Fri:"#f87171"};
-
-const BUILDINGS_GPS = {
-  LWSN: { lat:40.4274,  lng:-86.9172,  full:"Lawson Computer Science Building" },
-  HAAS: { lat:40.42681, lng:-86.91630, full:"Haas (Felix) Hall", room:"Room G072" },
-  LILY: { lat:40.42323, lng:-86.91825, full:"Lilly Hall of Life Sciences", room:"Room 1-407 — Math Resource Room" },
-  HAMP: { lat:40.43009, lng:-86.91489, full:"Hampton Hall of Civil Engineering", room:"550 Stadium Mall Dr" },
-  DSAI: { lat:40.42896, lng:-86.91482, full:"Hall of Data Science and AI", room:"DSAI B071" },
-  HILL: { lat:40.42695, lng:-86.92643, full:"Hillenbrand Hall", room:"Front Lobby — 1301 Third Street" },
-};
-
-const CS_HOURS = {
-  Mon:[
-    {t:"1:00 PM – 2:00 PM",  s:"13:00",e:"14:00",n:"Haiyan Xuan"},
-    {t:"2:00 PM – 3:00 PM",  s:"14:00",e:"15:00",n:"Christopher Gou"},
-    {t:"3:00 PM – 4:00 PM",  s:"15:00",e:"16:00",n:"Armaan Kokan"},
-    {t:"4:00 PM – 5:00 PM",  s:"16:00",e:"17:00",n:"Dhruv Soni"},
-    {t:"5:00 PM – 6:00 PM",  s:"17:00",e:"18:00",n:"Tarik Guler"},
-    {t:"6:00 PM – 7:00 PM",  s:"18:00",e:"19:00",n:"Sanjay Vijay"},
-    {t:"7:00 PM – 8:00 PM",  s:"19:00",e:"20:00",n:"Sriharshita Varanasi"},
-  ],
-  Tue:[
-    {t:"1:00 PM – 2:00 PM",  s:"13:00",e:"14:00",n:"Jianting Zhang · Lorenzo Sarria Maldonado"},
-    {t:"2:00 PM – 3:00 PM",  s:"14:00",e:"15:00",n:"Penghan Wang · Jianing Wang"},
-    {t:"3:00 PM – 4:00 PM",  s:"15:00",e:"16:00",n:"Attreyee Mukherjee · Sharanya Devgon"},
-    {t:"4:00 PM – 5:00 PM",  s:"16:00",e:"17:00",n:"Jiaxuan Wang · Robert Shengyi Zhou"},
-    {t:"5:00 PM – 6:00 PM",  s:"17:00",e:"18:00",n:"Daniel Castro Mesa · Pranav Setpal"},
-    {t:"6:00 PM – 7:00 PM",  s:"18:00",e:"19:00",n:"Gabriel Calinescu"},
-    {t:"7:00 PM – 8:00 PM",  s:"19:00",e:"20:00",n:"Mihir Mutyampeta"},
-  ],
-  Wed:[
-    {t:"1:00 PM – 2:00 PM",  s:"13:00",e:"14:00",n:"J Pinheiro · Ekaterina Tszyao"},
-    {t:"2:00 PM – 3:00 PM",  s:"14:00",e:"15:00",n:"Mingwei Zheng · Andrew Henry Liu"},
-    {t:"3:00 PM – 4:00 PM",  s:"15:00",e:"16:00",n:"Amir Basareh · Samuel Skulsky"},
-    {t:"4:00 PM – 5:00 PM",  s:"16:00",e:"17:00",n:"Qingyi Chen · Nikita Gorshkov"},
-    {t:"5:00 PM – 6:00 PM",  s:"17:00",e:"18:00",n:"Congyu Liu · Karthik Varigonda"},
-    {t:"6:00 PM – 7:00 PM",  s:"18:00",e:"19:00",n:"Daniel Shenglang Wong"},
-    {t:"7:00 PM – 8:00 PM",  s:"19:00",e:"20:00",n:"Sannidhi Agarwal"},
-  ],
-  Thu:[
-    {t:"1:00 PM – 2:00 PM",  s:"13:00",e:"14:00",n:"Kun Wang · Aakash Patel"},
-    {t:"2:00 PM – 3:00 PM",  s:"14:00",e:"15:00",n:"Rui Meng"},
-    {t:"3:00 PM – 4:00 PM",  s:"15:00",e:"16:00",n:"Zhengyun Nie · David Thomas"},
-    {t:"4:00 PM – 5:00 PM",  s:"16:00",e:"17:00",n:"Adrian Shuai Li · Thanh Bui Minh"},
-    {t:"5:00 PM – 6:00 PM",  s:"17:00",e:"18:00",n:"Yifei Gao · Arhan Wadhwani"},
-    {t:"6:00 PM – 7:00 PM",  s:"18:00",e:"19:00",n:"Layla Shihab"},
-    {t:"7:00 PM – 8:00 PM",  s:"19:00",e:"20:00",n:"Derrick Xian"},
-  ],
-  Fri:[
-    {t:"1:00 PM – 2:00 PM",  s:"13:00",e:"14:00",n:"Justin He · Chinmay Thakar"},
-    {t:"2:00 PM – 3:00 PM",  s:"14:00",e:"15:00",n:"Samia Kabir · Jiwon Seo"},
-    {t:"3:00 PM – 4:00 PM",  s:"15:00",e:"16:00",n:"Nolan Charles You · Kaya Tacer"},
-    {t:"4:00 PM – 5:00 PM",  s:"16:00",e:"17:00",n:"Ahammed Ullah · Mrigna Goel"},
-    {t:"5:00 PM – 6:00 PM",  s:"17:00",e:"18:00",n:"Vasileios Georgiou · Jigneshbhai Patel"},
-    {t:"6:00 PM – 7:00 PM",  s:"18:00",e:"19:00",n:"Nathan Witt"},
-    {t:"7:00 PM – 8:00 PM",  s:"19:00",e:"20:00",n:"Basant Sharma"},
-  ],
-};
-
-const MA_DATA = {
-  Mon:{
-    "9:30": [{c:"MA 16100",ta:"Austin Fessler"},{c:"MA 16200",ta:"Nathan Chen"},{c:"MA 26100",ta:"Athaliah Mackewicz"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA 15300+",ta:"Conner Lee Partaker"}],
-    "10:30":[{c:"MA 16100",ta:"Austin Fessler"},{c:"MA 16200",ta:"Nathan Chen"},{c:"MA 26100",ta:"Athaliah Mackewicz"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Ashton Keith"}],
-    "11:30":[{c:"MA 16200",ta:"Nathan Chen"},{c:"MA 26100",ta:"Athaliah Mackewicz"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA 15300+",ta:"Conner Lee Partaker"},{c:"MA All",ta:"Barath B. Ramakrishna"}],
-    "12:30":[{c:"MA 16010",ta:"Katherine Wong"},{c:"MA 16200",ta:"Dhruv Bhat"},{c:"MA 26100",ta:"Emmanuel Gil Torres"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA All",ta:"Barath B. Ramakrishna"},{c:"MA All",ta:"Fangwei Zhao"}],
-    "1:30": [{c:"MA 16020",ta:"Evan Yandell"},{c:"MA 16200",ta:"Dhruv Bhat"},{c:"MA 16200",ta:"Emma Conran"},{c:"MA 26100",ta:"Emmanuel Gil Torres"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA All",ta:"Fangwei Zhao"}],
-    "2:30": [{c:"MA 16200",ta:"Marshall Donn"},{c:"MA 16200",ta:"Yusra Qasem"},{c:"MA 26100",ta:"Emmanuel Gil Torres"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA All",ta:"Kathryn Moran"}],
-    "3:30": [{c:"MA 16200",ta:"Yusra Qasem"},{c:"MA 16200",ta:"Yuchuan Zhang"},{c:"MA 26100",ta:"Dylan Roscow"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA All",ta:"Fangwei Zhao"}],
-    "4:30": [{c:"MA 16200",ta:"Yusra Qasem"},{c:"MA 26100",ta:"Anthony Melo"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA All",ta:"Fangwei Zhao"}],
-  },
-  Tue:{
-    "9:30": [{c:"MA 16100",ta:"Laura Castillo"},{c:"MA 16200",ta:"Andy Yu"},{c:"MA 26100",ta:"Tyler Bruhnke"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA 15300+",ta:"Conner Lee Partaker"}],
-    "10:30":[{c:"MA 16100",ta:"Laura Castillo"},{c:"MA 16200",ta:"Andy Yu"},{c:"MA 26100",ta:"Dylan Roscow"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Mateo Matijasevick"}],
-    "11:30":[{c:"MA 16200",ta:"Skip Moses"},{c:"MA 26100",ta:"Anthony Melo"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 15800",ta:"Otto Clark Baier"}],
-    "12:30":[{c:"MA 16010",ta:"Anna N. Chlopecki"},{c:"MA 16200",ta:"Skip Moses"},{c:"MA 26100",ta:"G-N. Polychronidis"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Andreas Kavouras"}],
-    "1:30": [{c:"MA 16020",ta:"Michael Poole"},{c:"MA 16200",ta:"Oliver Tan"},{c:"MA 16200",ta:"Emma Conran"},{c:"MA 26100",ta:"Tyler Bruhnke"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA All",ta:"Jiarui Huang"}],
-    "2:30": [{c:"MA 16200",ta:"Oliver Tan"},{c:"MA 16200",ta:"Laiba Gull"},{c:"MA 26100",ta:"Dylan Roscow"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA All",ta:"Jiarui Huang"}],
-    "3:30": [{c:"MA 16200",ta:"Trey Crouch"},{c:"MA 16200",ta:"Yuchuan Zhang"},{c:"MA 26100",ta:"Reyhaneh S. Seyedpour"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA All",ta:"Kathryn Moran"}],
-    "4:30": [{c:"MA 16200",ta:"Trey Crouch"},{c:"MA 26100",ta:"Reyhaneh S. Seyedpour"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA All",ta:"Barath B. Ramakrishna"}],
-  },
-  Wed:{
-    "9:30": [{c:"MA 16100",ta:"Roland Long"},{c:"MA 16200",ta:"Fawzan Ali"},{c:"MA 26100",ta:"Giovani Thai"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA 15300+",ta:"Rivkah Moshe"}],
-    "10:30":[{c:"MA 16100",ta:"Roland Long"},{c:"MA 16200",ta:"Fawzan Ali"},{c:"MA 26100",ta:"Giovani Thai"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA 16010",ta:"Mansimar Singh"}],
-    "11:30":[{c:"MA 16200",ta:"Jose M. Barrientos Lopez"},{c:"MA 26100",ta:"Giovani Thai"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA All",ta:"Barath B. Ramakrishna"}],
-    "12:30":[{c:"MA 16020",ta:"Sarah Anderson"},{c:"MA 16200",ta:"Jose M. Barrientos Lopez"},{c:"MA 16200",ta:"Laiba Gull"},{c:"MA 26100",ta:"Reyhaneh S. Seyedpour"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA All",ta:"Barath B. Ramakrishna"}],
-    "1:30": [{c:"MA 16200",ta:"Alexander Yang"},{c:"MA 26100",ta:"Jonas Stuart"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA All",ta:"Fangwei Zhao"}],
-    "2:30": [{c:"MA 16200",ta:"Marshall Donn"},{c:"MA 16200",ta:"Laiba Gull"},{c:"MA 26100",ta:"Jonas Stuart"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA All",ta:"Kathryn Moran"}],
-    "3:30": [{c:"MA 16200",ta:"Rose Brickner"},{c:"MA 16200",ta:"Yuchuan Zhang"},{c:"MA 26100",ta:"Jonas Stuart"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA All",ta:"Kathryn Moran"}],
-    "4:30": [{c:"MA 16200",ta:"Rose Brickner"},{c:"MA 26100",ta:"Anthony Melo"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA All",ta:"Kathryn Moran"}],
-  },
-  Thu:{
-    "9:30": [{c:"MA 16200",ta:"Luke Miga"},{c:"MA 26100",ta:"John Sterling"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA 15300+",ta:"Rivkah Moshe"}],
-    "10:30":[{c:"MA 16200",ta:"Luke Miga"},{c:"MA 26100",ta:"John Sterling"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 15300+",ta:"Rivkah Moshe"}],
-    "11:30":[{c:"MA 16200",ta:"Minghui Zhang"},{c:"MA 26100",ta:"John Sterling"},{c:"MA 15300+",ta:"Andreas Kavouras"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 16020",ta:"Tyler J. Dunaisky"}],
-    "12:30":[{c:"MA 16200",ta:"Marshall Donn"},{c:"MA 16200",ta:"Minghui Zhang"},{c:"MA 26100",ta:"Luis Santori"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Andreas Kavouras"}],
-    "1:30": [{c:"MA 16010",ta:"Maiia Makarova"},{c:"MA 16200",ta:"Emma Conran"},{c:"MA 16200",ta:"Minghui Zhang"},{c:"MA 26100",ta:"Luis Santori"},{c:"MA 15300+",ta:"Conner Lee Partaker"},{c:"MA All",ta:"Jiarui Huang"}],
-    "2:30": [{c:"MA 16200",ta:"Md Hasan Kibria"},{c:"MA 26100",ta:"Luis Santori"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA All",ta:"Jiarui Huang"}],
-    "3:30": [{c:"MA 16200",ta:"Md Hasan Kibria"},{c:"MA 26100",ta:"G-N. Polychronidis"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA All",ta:"Jiarui Huang"}],
-    "4:30": [{c:"MA 16200",ta:"Md Hasan Kibria"},{c:"MA 26100",ta:"Tyler Bruhnke"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 15300+",ta:"Conner Lee Partaker"}],
-  },
-  Fri:{
-    "9:30": [{c:"MA All",ta:"Barath B. Ramakrishna"},{c:"MA 16100",ta:"Hoang Vo"},{c:"MA 16200",ta:"Shivang Patel"},{c:"MA 26100",ta:"Matthew Wackerfuss"},{c:"MA 15300+",ta:"Ashton Keith"},{c:"MA 15300+",ta:"Conner Lee Partaker"}],
-    "10:30":[{c:"MA All",ta:"Barath B. Ramakrishna"},{c:"MA 16100",ta:"Hoang Vo"},{c:"MA 16200",ta:"Shivang Patel"},{c:"MA 26100",ta:"Matthew Wackerfuss"},{c:"MA 15300+",ta:"Tausif Ahmed"},{c:"MA 15300+",ta:"Conner Lee Partaker"}],
-    "11:30":[{c:"MA 16200",ta:"Pedro Morales"},{c:"MA 26100",ta:"Matthew Wackerfuss"},{c:"MA 15300+",ta:"Conner Lee Partaker"},{c:"MA All",ta:"Barath B. Ramakrishna"}],
-    "12:30":[{c:"MA 16200",ta:"Pedro Morales"},{c:"MA 16200",ta:"Alexander Yang"},{c:"MA 26100",ta:"G-N. Polychronidis"},{c:"MA 15300+",ta:"Conner Lee Partaker"},{c:"MA All",ta:"Barath B. Ramakrishna"}],
-    "1:30": [{c:"MA 16200",ta:"Emma Conran"},{c:"MA 16200",ta:"Minghui Zhang"},{c:"MA 26100",ta:"Luis Santori"},{c:"MA 15300+",ta:"Conner Lee Partaker"},{c:"MA All",ta:"Jiarui Huang"}],
-    "2:30": [{c:"MA 16200",ta:"Minghui Zhang"},{c:"MA 16200",ta:"Md Hasan Kibria"},{c:"MA 26100",ta:"G-N. Polychronidis"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA All",ta:"Jiarui Huang"}],
-    "3:30": [{c:"MA 16200",ta:"Pedro Morales"},{c:"MA 26100",ta:"G-N. Polychronidis"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 15300+",ta:"Rivkah Moshe"},{c:"MA All",ta:"Jiarui Huang"}],
-    "4:30": [{c:"MA 16200",ta:"Md Hasan Kibria"},{c:"MA 26100",ta:"Tyler Bruhnke"},{c:"MA 15300+",ta:"Mateo Matijasevick"},{c:"MA 15300+",ta:"Conner Lee Partaker"}],
-  },
-};
-
-const TIME_S    = {"9:30":"9:30","10:30":"10:30","11:30":"11:30","12:30":"12:30","1:30":"13:30","2:30":"14:30","3:30":"15:30","4:30":"16:30"};
-const TIME_E    = {"9:30":"10:30","10:30":"11:30","11:30":"12:30","12:30":"13:30","1:30":"14:30","2:30":"15:30","3:30":"16:30","4:30":"17:30"};
-const TIME_DISP = {"9:30":"9:30 AM","10:30":"10:30 AM","11:30":"11:30 AM","12:30":"12:30 PM","1:30":"1:30 PM","2:30":"2:30 PM","3:30":"3:30 PM","4:30":"4:30 PM"};
-
-function maFilter(e, num) {
-  if (num==="15300") return e.c.includes("15300")||e.c.includes("15800")||e.c.includes("16010")||e.c.includes("16020")||e.c==="MA 15300+";
-  if (num==="16100") return e.c.includes("16100")||e.c==="MA All";
-  if (num==="16200") return e.c.includes("16200")||e.c==="MA All";
-  if (num==="26100") return e.c.includes("26100")||e.c==="MA All";
-  return false;
-}
-
-const EAPS_HOURS = {
-  Mon: [{t:"11:30 AM – 12:30 PM",s:"11:30",e:"12:30",n:"Dr. Roger Bryant",room:"Hampton Hall 3277A"}],
-  Tue: [{t:"1:30 PM – 2:30 PM",s:"13:30",e:"14:30",n:"Jason Lee",room:"Hampton Hall 2263"}],
-  Wed: [
-    {t:"11:30 AM – 12:30 PM",s:"11:30",e:"12:30",n:"Dr. Roger Bryant",room:"Hampton Hall 3277A"},
-    {t:"12:30 PM – 1:30 PM",s:"12:30",e:"13:30",n:"Isabelle Rein",room:"Hampton Hall 4169"},
-  ],
-  Thu: [
-    {t:"1:20 PM – 2:20 PM",s:"13:20",e:"14:20",n:"Ayobami Oladapo",room:"Hampton Hall 3257"},
-    {t:"1:30 PM – 2:30 PM",s:"13:30",e:"14:30",n:"Jason Lee",room:"Hampton Hall 2263"},
-  ],
-  Fri: [
-    {t:"12:30 PM – 1:30 PM",s:"12:30",e:"13:30",n:"Isabelle Rein",room:"Hampton Hall 4169"},
-    {t:"3:00 PM – 4:00 PM",s:"15:00",e:"16:00",n:"Jiquan Wang",room:"Hampton Hall 2295"},
-  ],
-};
-
-const TDM_HOURS = {
-  "TDM 10200": {
-    Sun: [
-      {t:"8:30 AM – 9:00 AM",s:"8:30",e:"9:00",tas:["Shree Bavana"],mode:"online"},
-      {t:"9:00 AM – 9:30 AM",s:"9:00",e:"9:30",tas:["Shree Bavana"],mode:"online"},
-      {t:"9:30 AM – 10:00 AM",s:"9:30",e:"10:00",tas:["Shree Bavana"],mode:"online"},
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Bharath Sadagopan","Tanya Jain"],mode:"online"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Bharath Sadagopan","Tanya Jain"],mode:"online"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Bharath Sadagopan","Tanya Jain"],mode:"online"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Bharath Sadagopan","Tanya Jain"],mode:"online"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Bharath Sadagopan","Tanya Jain"],mode:"online"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Bharath Sadagopan","Tanya Jain"],mode:"online"},
-      {t:"1:30 PM – 2:00 PM",s:"13:30",e:"14:00",tas:["Nikita Sirandasu","Tanya Jain"],mode:"online"},
-      {t:"2:00 PM – 2:30 PM",s:"14:00",e:"14:30",tas:["Nikita Sirandasu","Tanya Jain"],mode:"online"},
-      {t:"2:30 PM – 3:00 PM",s:"14:30",e:"15:00",tas:["Nikita Sirandasu","Tanya Jain"],mode:"online"},
-      {t:"3:00 PM – 3:30 PM",s:"15:00",e:"15:30",tas:["Nikita Sirandasu","Tanya Jain"],mode:"online"},
-      {t:"3:30 PM – 4:00 PM",s:"15:30",e:"16:00",tas:["Tanya Jain","Sab Saravanan"],mode:"online"},
-      {t:"4:00 PM – 4:30 PM",s:"16:00",e:"16:30",tas:["Rex Wu","Tanya Jain"],mode:"online"},
-      {t:"4:30 PM – 5:00 PM",s:"16:30",e:"17:00",tas:["Rex Wu","Tanya Jain"],mode:"online"},
-      {t:"5:00 PM – 5:30 PM",s:"17:00",e:"17:30",tas:["Rex Wu","Liam DavisVojta","Yatharth Jain"],mode:"online"},
-      {t:"5:30 PM – 6:00 PM",s:"17:30",e:"18:00",tas:["Rex Wu","Liam DavisVojta","Yatharth Jain"],mode:"online"},
-      {t:"6:00 PM – 6:30 PM",s:"18:00",e:"18:30",tas:["Yatharth Jain","Sab Saravanan","Shree Bavana"],mode:"online"},
-      {t:"6:30 PM – 7:00 PM",s:"18:30",e:"19:00",tas:["Yatharth Jain","Sab Saravanan","Shree Bavana"],mode:"online"},
-      {t:"7:00 PM – 7:30 PM",s:"19:00",e:"19:30",tas:["Yatharth Jain","Sab Saravanan","Shree Bavana"],mode:"online"},
-      {t:"7:30 PM – 8:00 PM",s:"19:30",e:"20:00",tas:["Yatharth Jain","Sab Saravanan","Shree Bavana"],mode:"online"},
-      {t:"8:00 PM – 8:30 PM",s:"20:00",e:"20:30",tas:["Sab Saravanan","Avi Gupta","Shree Bavana"],mode:"online"},
-      {t:"8:30 PM – 9:00 PM",s:"20:30",e:"21:00",tas:["Sab Saravanan","Avi Gupta","Shree Bavana"],mode:"online"},
-      {t:"9:00 PM – 9:30 PM",s:"21:00",e:"21:30",tas:["Bharath Sadagopan"],mode:"online"},
-      {t:"9:30 PM – 10:00 PM",s:"21:30",e:"22:00",tas:["Bharath Sadagopan"],mode:"online"},
-      {t:"10:00 PM – 10:30 PM",s:"22:00",e:"22:30",tas:["Samridhi Kakkar"],mode:"online"},
-      {t:"10:30 PM – 11:00 PM",s:"22:30",e:"23:00",tas:["Samridhi Kakkar"],mode:"online"},
-    ],
-    Mon: [
-      {t:"10:00 AM – 10:30 AM",s:"10:00",e:"10:30",tas:["Emma Mahan"],mode:"both"},
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Emma Mahan"],mode:"both"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Emma Mahan"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Emma Mahan"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Emma Mahan"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Rex Wu","Emma Mahan"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Rex Wu","Emma Mahan"],mode:"both"},
-      {t:"4:00 PM – 4:30 PM",s:"16:00",e:"16:30",tas:["Rohit Karthik"],mode:"both"},
-      {t:"4:30 PM – 5:00 PM",s:"16:30",e:"17:00",tas:["Rohit Karthik"],mode:"both"},
-      {t:"5:00 PM – 5:30 PM",s:"17:00",e:"17:30",tas:["Rohit Karthik"],mode:"online"},
-      {t:"5:30 PM – 6:00 PM",s:"17:30",e:"18:00",tas:["Rohit Karthik"],mode:"online"},
-      {t:"6:00 PM – 6:30 PM",s:"18:00",e:"18:30",tas:["Chinmay Thakar","Yatharth Jain"],mode:"online"},
-      {t:"6:30 PM – 7:00 PM",s:"18:30",e:"19:00",tas:["Chinmay Thakar","Yatharth Jain"],mode:"online"},
-      {t:"7:00 PM – 7:30 PM",s:"19:00",e:"19:30",tas:["Chinmay Thakar","Yatharth Jain"],mode:"online"},
-      {t:"7:30 PM – 8:00 PM",s:"19:30",e:"20:00",tas:["Yatharth Jain"],mode:"online"},
-      {t:"8:00 PM – 8:30 PM",s:"20:00",e:"20:30",tas:["Yatharth Jain"],mode:"online"},
-      {t:"8:30 PM – 9:00 PM",s:"20:30",e:"21:00",tas:["Yatharth Jain"],mode:"online"},
-      {t:"9:00 PM – 9:30 PM",s:"21:00",e:"21:30",tas:["Nikita Sirandasu","Bharath Sadagopan","Shree Bavana"],mode:"online"},
-      {t:"9:30 PM – 10:00 PM",s:"21:30",e:"22:00",tas:["Nikita Sirandasu","Bharath Sadagopan","Shree Bavana"],mode:"online"},
-      {t:"10:00 PM – 10:30 PM",s:"22:00",e:"22:30",tas:["Nikita Sirandasu","Bharath Sadagopan","Shree Bavana"],mode:"online"},
-      {t:"10:30 PM – 11:00 PM",s:"22:30",e:"23:00",tas:["Nikita Sirandasu","Bharath Sadagopan","Shree Bavana"],mode:"online"},
-    ],
-    Tue: [
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Rohit Karthik"],mode:"both"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Rohit Karthik"],mode:"both"},
-      {t:"4:00 PM – 4:30 PM",s:"16:00",e:"16:30",tas:["Chinmay Thakar"],mode:"both"},
-      {t:"4:30 PM – 5:00 PM",s:"16:30",e:"17:00",tas:["Chinmay Thakar"],mode:"both"},
-      {t:"5:00 PM – 5:30 PM",s:"17:00",e:"17:30",tas:["Yatharth Jain","Rohit Karthik","Avi Gupta"],mode:"online"},
-      {t:"5:30 PM – 6:00 PM",s:"17:30",e:"18:00",tas:["Chinmay Thakar","Rohit Karthik"],mode:"online"},
-      {t:"6:00 PM – 6:30 PM",s:"18:00",e:"18:30",tas:["Chinmay Thakar","Rohit Karthik"],mode:"online"},
-      {t:"6:30 PM – 7:00 PM",s:"18:30",e:"19:00",tas:["Chinmay Thakar","Rohit Karthik"],mode:"online"},
-      {t:"7:00 PM – 7:30 PM",s:"19:00",e:"19:30",tas:["Chinmay Thakar","Rohit Karthik"],mode:"online"},
-      {t:"7:30 PM – 8:00 PM",s:"19:30",e:"20:00",tas:["Rohit Karthik"],mode:"online"},
-      {t:"8:00 PM – 8:30 PM",s:"20:00",e:"20:30",tas:["Sab Saravanan"],mode:"online"},
-      {t:"8:30 PM – 9:00 PM",s:"20:30",e:"21:00",tas:["Sab Saravanan"],mode:"online"},
-      {t:"9:00 PM – 9:30 PM",s:"21:00",e:"21:30",tas:["Samridhi Kakkar"],mode:"online"},
-      {t:"9:30 PM – 10:00 PM",s:"21:30",e:"22:00",tas:["Samridhi Kakkar"],mode:"online"},
-      {t:"10:00 PM – 10:30 PM",s:"22:00",e:"22:30",tas:["Samridhi Kakkar"],mode:"online"},
-      {t:"10:30 PM – 11:00 PM",s:"22:30",e:"23:00",tas:["Samridhi Kakkar"],mode:"online"},
-    ],
-    Wed: [
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Rex Wu","Avi Gupta"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Rex Wu","Avi Gupta"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Avi Gupta"],mode:"both"},
-      {t:"1:30 PM – 2:00 PM",s:"13:30",e:"14:00",tas:["Avi Gupta"],mode:"both"},
-      {t:"2:00 PM – 2:30 PM",s:"14:00",e:"14:30",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"2:30 PM – 3:00 PM",s:"14:30",e:"15:00",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"3:00 PM – 3:30 PM",s:"15:00",e:"15:30",tas:["Liam DavisVojta","Avi Gupta"],mode:"both"},
-      {t:"3:30 PM – 4:00 PM",s:"15:30",e:"16:00",tas:["Liam DavisVojta","Avi Gupta"],mode:"both"},
-      {t:"4:00 PM – 4:30 PM",s:"16:00",e:"16:30",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"4:30 PM – 5:00 PM",s:"16:30",e:"17:00",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"5:00 PM – 5:30 PM",s:"17:00",e:"17:30",tas:["Chinmay Thakar"],mode:"online"},
-      {t:"5:30 PM – 6:00 PM",s:"17:30",e:"18:00",tas:["Chinmay Thakar"],mode:"online"},
-      {t:"6:00 PM – 6:30 PM",s:"18:00",e:"18:30",tas:["Chinmay Thakar","Avi Gupta"],mode:"online"},
-      {t:"6:30 PM – 7:00 PM",s:"18:30",e:"19:00",tas:["Chinmay Thakar","Avi Gupta"],mode:"online"},
-      {t:"7:00 PM – 7:30 PM",s:"19:00",e:"19:30",tas:["Chinmay Thakar","Avi Gupta"],mode:"online"},
-      {t:"7:30 PM – 8:00 PM",s:"19:30",e:"20:00",tas:["Chinmay Thakar"],mode:"online"},
-      {t:"8:30 PM – 9:00 PM",s:"20:30",e:"21:00",tas:["Sab Saravanan","Shree Bavana"],mode:"online"},
-      {t:"9:00 PM – 9:30 PM",s:"21:00",e:"21:30",tas:["Nikita Sirandasu","Samridhi Kakkar"],mode:"online"},
-      {t:"9:30 PM – 10:00 PM",s:"21:30",e:"22:00",tas:["Nikita Sirandasu","Samridhi Kakkar"],mode:"online"},
-      {t:"10:00 PM – 10:30 PM",s:"22:00",e:"22:30",tas:["Nikita Sirandasu","Samridhi Kakkar"],mode:"online"},
-      {t:"10:30 PM – 11:00 PM",s:"22:30",e:"23:00",tas:["Nikita Sirandasu","Samridhi Kakkar"],mode:"online"},
-    ],
-    Thu: [
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Rohit Karthik","Emma Mahan"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Emma Mahan"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Rex Wu","Liam DavisVojta"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Rex Wu","Liam DavisVojta"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"1:30 PM – 2:00 PM",s:"13:30",e:"14:00",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"2:00 PM – 2:30 PM",s:"14:00",e:"14:30",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"2:30 PM – 3:00 PM",s:"14:30",e:"15:00",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"3:00 PM – 3:30 PM",s:"15:00",e:"15:30",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"3:30 PM – 4:00 PM",s:"15:30",e:"16:00",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"4:00 PM – 4:30 PM",s:"16:00",e:"16:30",tas:["Liam DavisVojta"],mode:"both"},
-      {t:"4:30 PM – 5:00 PM",s:"16:30",e:"17:00",tas:["Liam DavisVojta"],mode:"both"},
-    ],
-    Fri: [
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Emma Mahan","Sab Saravanan"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Emma Mahan","Sab Saravanan"],mode:"both"},
-    ],
-  },
-  "TDM 20200": {
-    Sun: [
-      {t:"9:00 AM – 9:30 AM",s:"9:00",e:"9:30",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"9:30 AM – 10:00 AM",s:"9:30",e:"10:00",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"10:00 AM – 10:30 AM",s:"10:00",e:"10:30",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"8:00 PM – 8:30 PM",s:"20:00",e:"20:30",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"8:30 PM – 9:00 PM",s:"20:30",e:"21:00",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"9:00 PM – 9:30 PM",s:"21:00",e:"21:30",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"9:30 PM – 10:00 PM",s:"21:30",e:"22:00",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"10:00 PM – 10:30 PM",s:"22:00",e:"22:30",tas:["Sanjhee Gupta"],mode:"online"},
-      {t:"10:30 PM – 11:00 PM",s:"22:30",e:"23:00",tas:["Sanjhee Gupta"],mode:"online"},
-    ],
-    Mon: [
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Michael Hansen"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Michael Hansen"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Michael Hansen"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Michael Hansen"],mode:"both"},
-      {t:"7:00 PM – 7:30 PM",s:"19:00",e:"19:30",tas:["Carl Bravata"],mode:"online"},
-      {t:"7:30 PM – 8:00 PM",s:"19:30",e:"20:00",tas:["Carl Bravata"],mode:"online"},
-      {t:"8:00 PM – 8:30 PM",s:"20:00",e:"20:30",tas:["Carl Bravata"],mode:"online"},
-      {t:"8:30 PM – 9:00 PM",s:"20:30",e:"21:00",tas:["Carl Bravata"],mode:"online"},
-      {t:"9:00 PM – 9:30 PM",s:"21:00",e:"21:30",tas:["Carl Bravata"],mode:"online"},
-      {t:"9:30 PM – 10:00 PM",s:"21:30",e:"22:00",tas:["Carl Bravata"],mode:"online"},
-      {t:"10:00 PM – 10:30 PM",s:"22:00",e:"22:30",tas:["Carl Bravata"],mode:"online"},
-      {t:"10:30 PM – 11:00 PM",s:"22:30",e:"23:00",tas:["Carl Bravata"],mode:"online"},
-    ],
-    Tue: [
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Ruiming Xu"],mode:"both"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Ruiming Xu"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Ruiming Xu"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Ruiming Xu"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Ruiming Xu"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Ruiming Xu"],mode:"both"},
-      {t:"1:30 PM – 2:00 PM",s:"13:30",e:"14:00",tas:["Ruiming Xu"],mode:"both"},
-      {t:"2:00 PM – 2:30 PM",s:"14:00",e:"14:30",tas:["Ruiming Xu"],mode:"both"},
-      {t:"2:30 PM – 3:00 PM",s:"14:30",e:"15:00",tas:["Ruiming Xu"],mode:"both"},
-      {t:"3:00 PM – 3:30 PM",s:"15:00",e:"15:30",tas:["Ruiming Xu"],mode:"both"},
-      {t:"9:00 PM – 9:30 PM",s:"21:00",e:"21:30",tas:["Ruiming Xu"],mode:"online"},
-      {t:"9:30 PM – 10:00 PM",s:"21:30",e:"22:00",tas:["Ruiming Xu"],mode:"online"},
-      {t:"10:00 PM – 10:30 PM",s:"22:00",e:"22:30",tas:["Ruiming Xu"],mode:"online"},
-      {t:"10:30 PM – 11:00 PM",s:"22:30",e:"23:00",tas:["Ruiming Xu"],mode:"online"},
-    ],
-    Wed: [
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Michael Hansen"],mode:"both"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Michael Hansen"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Michael Hansen"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Michael Hansen"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Michael Hansen"],mode:"both"},
-    ],
-    Thu: [
-      {t:"10:00 AM – 10:30 AM",s:"10:00",e:"10:30",tas:["Carl Bravata"],mode:"both"},
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Carl Bravata"],mode:"both"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Carl Bravata","Michael Hansen"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Carl Bravata","Michael Hansen"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Carl Bravata"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Carl Bravata"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Carl Bravata"],mode:"both"},
-      {t:"1:30 PM – 2:00 PM",s:"13:30",e:"14:00",tas:["Carl Bravata"],mode:"both"},
-      {t:"2:30 PM – 3:00 PM",s:"14:30",e:"15:00",tas:["Ridham Patel"],mode:"both"},
-      {t:"3:00 PM – 3:30 PM",s:"15:00",e:"15:30",tas:["Ridham Patel"],mode:"both"},
-      {t:"3:30 PM – 4:00 PM",s:"15:30",e:"16:00",tas:["Ridham Patel"],mode:"both"},
-      {t:"4:00 PM – 4:30 PM",s:"16:00",e:"16:30",tas:["Ridham Patel"],mode:"both"},
-      {t:"4:30 PM – 5:00 PM",s:"16:30",e:"17:00",tas:["Ridham Patel"],mode:"both"},
-      {t:"5:00 PM – 5:30 PM",s:"17:00",e:"17:30",tas:["Ridham Patel"],mode:"online"},
-      {t:"5:30 PM – 6:00 PM",s:"17:30",e:"18:00",tas:["Ridham Patel"],mode:"online"},
-      {t:"6:00 PM – 6:30 PM",s:"18:00",e:"18:30",tas:["Ridham Patel"],mode:"online"},
-      {t:"6:30 PM – 7:00 PM",s:"18:30",e:"19:00",tas:["Ridham Patel"],mode:"online"},
-    ],
-    Fri: [
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Michael Hansen"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Michael Hansen"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Michael Hansen"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Michael Hansen"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Michael Hansen"],mode:"both"},
-    ],
-  },
-  "TDM 30200": {
-    Mon: [
-      {t:"10:30 AM – 11:00 AM",s:"10:30",e:"11:00",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"1:00 PM – 1:30 PM",s:"13:00",e:"13:30",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-    ],
-    Tue: [
-      {t:"11:00 AM – 11:30 AM",s:"11:00",e:"11:30",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-    ],
-    Wed: [
-      {t:"11:30 AM – 12:00 PM",s:"11:30",e:"12:00",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"12:00 PM – 12:30 PM",s:"12:00",e:"12:30",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-      {t:"12:30 PM – 1:00 PM",s:"12:30",e:"13:00",tas:["Connor Barnsley","Minsoo Oh"],mode:"both"},
-    ],
-  },
-};
-
-const CS240_OH = {
-  Mon: [
-    {t:"12:00 PM – 3:30 PM",s:"12:00",e:"15:30",n:"Open Office Hours",room:"DSAI B071"},
-    {t:"4:30 PM – 5:00 PM",s:"16:30",e:"17:00",n:"Open Office Hours",room:"DSAI B071"},
-    {t:"6:00 PM – 8:00 PM",s:"18:00",e:"20:00",n:"Open Office Hours",room:"DSAI B071"},
-  ],
-  Tue: [{t:"9:00 AM – 8:00 PM",s:"9:00",e:"20:00",n:"Open Office Hours",room:"DSAI B071"}],
-  Wed: [
-    {t:"8:00 AM – 10:00 AM",s:"8:00",e:"10:00",n:"Open Office Hours",room:"DSAI B071"},
-    {t:"12:00 PM – 8:00 PM",s:"12:00",e:"20:00",n:"Open Office Hours",room:"DSAI B071"},
-  ],
-  Thu: [{t:"12:00 PM – 8:00 PM",s:"12:00",e:"20:00",n:"Open Office Hours",room:"DSAI B071"}],
-  Fri: [
-    {t:"8:00 AM – 12:00 PM",s:"8:00",e:"12:00",n:"Open Office Hours",room:"DSAI B071"},
-    {t:"2:00 PM – 6:00 PM",s:"14:00",e:"18:00",n:"Open Office Hours",room:"DSAI B071"},
-  ],
-};
-
-const CS240_LABS = [
-  {sec:"L17",day:"Tue",t:"9:30 AM – 11:20 AM",s:"9:30",e:"11:20",room:"DSAI B069",lead:"Franklin Liu",tas:["Amey Bhandari","Ethan Max Porath"]},
-  {sec:"L22",day:"Tue",t:"9:30 AM – 11:20 AM",s:"9:30",e:"11:20",room:"DSAI B039",lead:"Eliezer K. Amponsah",tas:["Paige Lorenz","Min-Xuan Jyi"]},
-  {sec:"L09",day:"Tue",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B031",lead:"Isaac P. Hubbard",tas:["Gabriel Calinescu","Jeremy Hyojun Moon"]},
-  {sec:"L25",day:"Tue",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B039",lead:"Hannah F. Shaw",tas:["William Huang","Min-Xuan Jyi"]},
-  {sec:"L29",day:"Tue",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B069",lead:"Ajay R. Rawat",tas:["Noah Arthur Trupin","Arnav Kumar"]},
-  {sec:"L04",day:"Tue",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B039",lead:"Hannah F. Shaw",tas:["Youngjun Yoo","Caleb Li"]},
-  {sec:"L10",day:"Tue",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B033",lead:"Sirui Chen",tas:["Reed Thornton Elliott","Shrish Mahesh"]},
-  {sec:"L06",day:"Tue",t:"3:30 PM – 5:20 PM",s:"15:30",e:"17:20",room:"DSAI B069",lead:"Vikram Rangarajan",tas:["Paige Lorenz","Nihar Salil Kodkani"]},
-  {sec:"L23",day:"Wed",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B069",lead:"Haoyu Jin",tas:["David Scott Thomas","Samit Gadekar"]},
-  {sec:"L11",day:"Wed",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B033",lead:"Shubhankar Varshney",tas:["Philip Stephen Wisniewski","Ethan Jihoon Park"]},
-  {sec:"L14",day:"Wed",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B069",lead:"Yubin Koh",tas:["Chang Yang","Catherine Jaywon Park"]},
-  {sec:"L05",day:"Wed",t:"3:30 PM – 5:20 PM",s:"15:30",e:"17:20",room:"DSAI B069",lead:"Berk Aydogmus",tas:["Matthew Ryan Battista","Laila Calista Sadlow"]},
-  {sec:"L12",day:"Wed",t:"3:30 PM – 5:20 PM",s:"15:30",e:"17:20",room:"DSAI B031",lead:"Jacob G. Coberly",tas:["Nicolas Tabet","Benjamin Jhih-wei den Besten"]},
-  {sec:"L16",day:"Thu",t:"9:30 AM – 11:20 AM",s:"9:30",e:"11:20",room:"DSAI B039",lead:"Eliezer K. Amponsah",tas:["Amey Bhandari","Dinh Huy Tuan Nhu"]},
-  {sec:"L24",day:"Thu",t:"9:30 AM – 11:20 AM",s:"9:30",e:"11:20",room:"DSAI B033",lead:"Feras I. Al-Qassas",tas:["Collin Walker James","Ethan Max Porath"]},
-  {sec:"L26",day:"Thu",t:"9:30 AM – 11:20 AM",s:"9:30",e:"11:20",room:"DSAI B069",lead:"Franklin Liu",tas:["Arnav Kumar","Ejiroghene Jeffrey Oguni"]},
-  {sec:"L02",day:"Thu",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B033",lead:"Isaac P. Hubbard",tas:["Minh Binh Tran","Noah Arthur Trupin"]},
-  {sec:"L20",day:"Thu",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B069",lead:"Wenbo Xie",tas:["Jeremy Hyojun Moon","Ejiroghene Jeffrey Oguni"]},
-  {sec:"L03",day:"Thu",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B031",lead:"Gisu Yeo",tas:["Elizabeth S Noh","Jack Finley Riviere"]},
-  {sec:"L13",day:"Thu",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B069",lead:"Sirui Chen",tas:["Youngjun Yoo"]},
-  {sec:"L01",day:"Thu",t:"3:30 PM – 5:20 PM",s:"15:30",e:"17:20",room:"DSAI B033",lead:"Vikram Rangarajan",tas:["Pranav Sanghi","Benjamin Jhih-wei den Besten"]},
-  {sec:"L18",day:"Thu",t:"3:30 PM – 5:20 PM",s:"15:30",e:"17:20",room:"DSAI B031",lead:"Gisu Yeo",tas:["Elizabeth S Noh","Naunidha Singh Sawhney"]},
-  {sec:"L07",day:"Fri",t:"9:30 AM – 11:20 AM",s:"9:30",e:"11:20",room:"DSAI B039",lead:"Nathan A. Smearsoll",tas:["Nicolas Tabet","Matthew Ryan Battista"]},
-  {sec:"L19",day:"Fri",t:"9:30 AM – 11:20 AM",s:"9:30",e:"11:20",room:"DSAI B033",lead:"Mohammad Sadegh Majidi Yazdi",tas:["Steven Allan Widjaja","David Racovan"]},
-  {sec:"L08",day:"Fri",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B033",lead:"Xiaoyang Lu",tas:["Dinh Huy Tuan Nhu","David Scott Thomas"]},
-  {sec:"L27",day:"Fri",t:"11:30 AM – 1:20 PM",s:"11:30",e:"13:20",room:"DSAI B069",lead:"Feras I. Al-Qassas",tas:["Benjamin Lobos Lertpunyaroj","Frank Lee Schlehofer"]},
-  {sec:"L21",day:"Fri",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B039",lead:"Amirreza Shaeiri",tas:["Emily Li","Benjamin Lobos Lertpunyaroj"]},
-  {sec:"L28",day:"Fri",t:"1:30 PM – 3:20 PM",s:"13:30",e:"15:20",room:"DSAI B033",lead:"Mohammad Sadegh Majidi Yazdi",tas:["Ethan Jihoon Park","Nihar Salil Kodkani"]},
-];
-
-const COURSES = {
-  "TDM 10200":{ title:"Introduction to Data Science",          dept:"TDM", num:"10200", note:"Hillenbrand Hall lobby (in-person + Zoom) · Sun–Fri", bldg:{Sun:"HILL",Mon:"HILL",Tue:"HILL",Wed:"HILL",Thu:"HILL",Fri:"HILL"}, type:"tdm" },
-  "TDM 20200":{ title:"Data Science in the Data Mine",          dept:"TDM", num:"20200", note:"Hillenbrand Hall lobby (in-person + Zoom) · Sun–Fri", bldg:{Sun:"HILL",Mon:"HILL",Tue:"HILL",Wed:"HILL",Thu:"HILL",Fri:"HILL"}, type:"tdm" },
-  "TDM 30200":{ title:"Advanced Data Science in the Data Mine", dept:"TDM", num:"30200", note:"Hillenbrand Hall lobby (in-person + Zoom) · Mon–Wed",  bldg:{Mon:"HILL",Tue:"HILL",Wed:"HILL",Thu:"HILL",Fri:"HILL"}, type:"tdm" },
-  "CS 24000": { title:"Programming in C",                       dept:"CS",  num:"24000", note:"Office hours at DSAI B071 · Labs at DSAI B031/B033/B039/B069", bldg:{Mon:"DSAI",Tue:"DSAI",Wed:"DSAI",Thu:"DSAI",Fri:"DSAI"}, type:"cs240" },
-  "EAPS 11200":{ title:"The Earth Through Time",                dept:"EAPS",num:"11200", note:"Multiple instructors · Hampton Hall (HAMP) · All week", bldg:{Mon:"HAMP",Tue:"HAMP",Wed:"HAMP",Thu:"HAMP",Fri:"HAMP"}, type:"eaps" },
-  "CS 18200": { title:"Foundations of Computer Science",        dept:"CS",  num:"18200", note:"Mon–Thu: Lawson Commons (LWSN) · Fri: HAAS G072",       bldg:{Mon:"LWSN",Tue:"LWSN",Wed:"LWSN",Thu:"LWSN",Fri:"HAAS"}, type:"cs" },
-  "MA 15300": { title:"Mathematics For Elementary Education I", dept:"MA",  num:"15300", note:"Math Resource Room · LILY 1-407 · All week",             bldg:{Mon:"LILY",Tue:"LILY",Wed:"LILY",Thu:"LILY",Fri:"LILY"}, type:"ma" },
-  "MA 16100": { title:"Plane Analytic Geometry And Calculus I", dept:"MA",  num:"16100", note:"Math Resource Room · LILY 1-407 · All week",             bldg:{Mon:"LILY",Tue:"LILY",Wed:"LILY",Thu:"LILY",Fri:"LILY"}, type:"ma" },
-  "MA 16200": { title:"Plane Analytic Geometry And Calculus II",dept:"MA",  num:"16200", note:"Math Resource Room · LILY 1-407 · All week",             bldg:{Mon:"LILY",Tue:"LILY",Wed:"LILY",Thu:"LILY",Fri:"LILY"}, type:"ma" },
-  "MA 26100": { title:"Multivariate Calculus",                  dept:"MA",  num:"26100", note:"Math Resource Room · LILY 1-407 · All week",             bldg:{Mon:"LILY",Tue:"LILY",Wed:"LILY",Thu:"LILY",Fri:"LILY"}, type:"ma" },
-};
-
-let currentCourse = null;
-let selectedDay   = null;
-let mapInstance   = null;
-let currentBldgId = null;
 
 function todayAbbr() { return JS_DAY[new Date().getDay()] || null; }
-function nowMin()     { const d = new Date(); return d.getHours()*60 + d.getMinutes(); }
-function toMin(t)     { if (!t) return 0; const [h,m] = t.split(":").map(Number); return h*60+m; }
-function toDisp(t)    { if (!t) return ""; const [h,m] = t.split(":").map(Number); return `${h%12||12}:${String(m).padStart(2,"0")} ${h>=12?"PM":"AM"}`; }
 
 function updateClock() {
   const d  = new Date();
-  const h  = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
+  const h  = d.getHours(), m = d.getMinutes();
   const ap = h >= 12 ? "PM" : "AM";
   const h12 = h % 12 || 12;
   const tEl = document.getElementById("nav-time");
@@ -847,236 +247,7 @@ function updateClock() {
     dEl.textContent = today ? DAY_FULL[today] : d.toLocaleDateString("en-US",{weekday:"long"});
     dEl.className = "nav-clock-day" + (today ? " active" : "");
   }
-  if (s === 0 && currentCourse) refreshNowBadges();
 }
-
-function refreshNowBadges() {
-  const nm = nowMin(), isToday = selectedDay === todayAbbr();
-  document.querySelectorAll(".slot[data-s]").forEach(el => {
-    const sm = +el.dataset.s, em = +el.dataset.e;
-    el.classList.toggle("now",  isToday && nm>=sm && nm<em);
-    el.classList.toggle("past", isToday && nm>=em);
-  });
-  document.querySelectorAll(".ma-slot[data-s]").forEach(el => {
-    const sm = +el.dataset.s, em = +el.dataset.e;
-    el.classList.toggle("now",  isToday && nm>=sm && nm<em);
-    el.classList.toggle("past", isToday && nm>=em);
-  });
-}
-
-function renderDayTabs() {
-  const today = todayAbbr();
-  const wrap  = document.getElementById("day-tabs");
-  wrap.innerHTML = "";
-  const hasSun = currentCourse && currentCourse.type === "tdm" && (TDM_HOURS[currentCourse.dept+" "+currentCourse.num]||{}).Sun;
-  const tabDays = currentCourse && currentCourse.type === "tdm" ? (hasSun ? ["Sun","Mon","Tue","Wed","Thu","Fri"] : DAYS) : DAYS;
-  tabDays.forEach(d => {
-    const isSel   = d === selectedDay;
-    const isToday = d === today;
-    const col     = DAY_COLORS[d];
-    const btn     = document.createElement("button");
-    btn.className = "day-tab";
-    btn.style.cssText = `color:${isSel?col:isToday?"#bbb":"#666"};border-color:${isSel?col:"var(--border)"};background:${isSel?col+"22":"var(--bg2)"};font-weight:${isSel?"800":isToday?"700":"500"};`;
-    btn.innerHTML = d + (isToday ? `<span class="day-dot" style="background:${col}"></span>` : "");
-    btn.onclick = () => { selectedDay = d; renderDayTabs(); renderSlots(); updateMapIfNeeded(); };
-    wrap.appendChild(btn);
-  });
-}
-
-function renderSlots() {
-  if (!currentCourse) return;
-  const c = currentCourse, isToday = selectedDay===todayAbbr(), nm = nowMin();
-  let html = "";
-
-  if (c.type === "cs240") {
-    const ohSlots  = CS240_OH[selectedDay] || [];
-    const labSlots = CS240_LABS.filter(l => l.day === selectedDay);
-    let ohHtml = ohSlots.length
-      ? ohSlots.map(s => {
-          const sm=toMin(s.s),em=toMin(s.e),isNow=isToday&&nm>=sm&&nm<em,isPast=isToday&&nm>=em;
-          return `<div class="slot${isNow?" now":""}${isPast?" past":""}" data-s="${sm}" data-e="${em}">
-            <span class="now-badge">NOW</span><span class="slot-spacer"></span>
-            <span class="slot-time">${s.t}</span>
-            <span class="slot-name">${s.n} <span style="color:#666;font-size:11px">· ${s.room}</span></span>
-          </div>`;
-        }).join("")
-      : `<div class="empty">No office hours on ${DAY_FULL[selectedDay]}</div>`;
-    let labHtml = labSlots.length
-      ? `<div class="labs-section">
-          <button class="labs-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('▼')?'▲ Hide lab sections':'▼ Show lab sections (${labSlots.length})'">▼ Show lab sections (${labSlots.length})</button>
-          <div style="display:none;margin-top:8px">${labSlots.map(l=>{
-            const sm=toMin(l.s),em=toMin(l.e),isActive=isToday&&nm>=sm&&nm<em,isPast=isToday&&nm>=em;
-            return `<div class="lab-item${isActive?" active":""}${isPast?" past":""}">
-              <span class="lab-sec">${l.sec}</span>
-              <div class="lab-info">
-                <div><span class="lab-time">${l.t}</span><span class="lab-room">· ${l.room}</span></div>
-                <div class="lab-lead">${l.lead}</div>
-                <div class="lab-tas">${l.tas.join(", ")}</div>
-              </div>
-            </div>`;
-          }).join("")}</div></div>` : "";
-    html = ohHtml + labHtml;
-  } else if (c.type === "tdm") {
-    const slots = (TDM_HOURS[c.dept+" "+c.num]||{})[selectedDay]||[];
-    if (!slots.length) { html = `<div class="empty">No office hours on ${DAY_FULL[selectedDay]}</div>`; }
-    else {
-      html = slots.map(s => {
-        const sm=toMin(s.s),em=toMin(s.e),isNow=isToday&&nm>=sm&&nm<em,isPast=isToday&&nm>=em;
-        const modeTag = s.mode==="both"
-          ? `<span class="mode-tag both">In-person + Zoom</span>`
-          : `<span class="mode-tag online">Zoom only</span>`;
-        return `<div class="slot${isNow?" now":""}${isPast?" past":""}" data-s="${sm}" data-e="${em}">
-          <span class="now-badge">NOW</span><span class="slot-spacer"></span>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span class="slot-time" style="min-width:0">${s.t}</span>${modeTag}
-            </div>
-            <div class="slot-name" style="margin-top:2px">${s.tas.join(", ")}</div>
-          </div>
-        </div>`;
-      }).join("");
-    }
-  } else if (c.type === "eaps") {
-    const slots = EAPS_HOURS[selectedDay]||[];
-    if (!slots.length) { html = `<div class="empty">No office hours on ${DAY_FULL[selectedDay]}</div>`; }
-    else {
-      html = slots.map(s => {
-        const sm=toMin(s.s),em=toMin(s.e),isNow=isToday&&nm>=sm&&nm<em,isPast=isToday&&nm>=em;
-        return `<div class="slot${isNow?" now":""}${isPast?" past":""}" data-s="${sm}" data-e="${em}">
-          <span class="now-badge">NOW</span><span class="slot-spacer"></span>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-              <span class="slot-time">${s.t}</span>
-              <span style="color:var(--gold);font-size:13px;font-weight:800;font-family:monospace;letter-spacing:0.03em">${s.room}</span>
-            </div>
-            <div class="slot-name">${s.n}</div>
-          </div>
-        </div>`;
-      }).join("");
-    }
-  } else if (c.type === "cs") {
-    const slots = CS_HOURS[selectedDay]||[];
-    if (!slots.length) { html = `<div class="empty">No office hours on ${DAY_FULL[selectedDay]}</div>`; }
-    else {
-      html = slots.map(s => {
-        const sm=toMin(s.s),em=toMin(s.e),isNow=isToday&&nm>=sm&&nm<em,isPast=isToday&&nm>=em;
-        return `<div class="slot${isNow?" now":""}${isPast?" past":""}" data-s="${sm}" data-e="${em}">
-          <span class="now-badge">NOW</span><span class="slot-spacer"></span>
-          <div style="flex:1;min-width:0">
-            <span class="slot-time">${s.t}</span>
-            <div class="slot-name">${s.n}</div>
-          </div>
-        </div>`;
-      }).join("");
-    }
-  } else {
-    const dayData = MA_DATA[selectedDay]||{};
-    let hasAny = false;
-    html = Object.keys(dayData).map(tk => {
-      const matching = dayData[tk].filter(e => maFilter(e, c.num));
-      if (!matching.length) return "";
-      hasAny = true;
-      const sm=toMin(TIME_S[tk]),em=toMin(TIME_E[tk]),isNow=isToday&&nm>=sm&&nm<em,isPast=isToday&&nm>=em;
-      return `<div class="ma-slot${isNow?" now":""}${isPast?" past":""}" data-s="${sm}" data-e="${em}">
-        <div class="ma-slot-header">
-          <span class="ma-now-badge">NOW</span>
-          <span class="ma-slot-time">${TIME_DISP[tk]} – ${toDisp(TIME_E[tk])}</span>
-        </div>
-        <div class="ma-ta-list">${matching.map(e=>`<div class="ma-ta"><span class="ma-ta-course">${e.c}</span>${e.ta}</div>`).join("")}</div>
-      </div>`;
-    }).join("");
-    if (!hasAny) html = `<div class="empty">No hours on ${DAY_FULL[selectedDay]}</div>`;
-  }
-
-  document.getElementById("r-slots").innerHTML = html;
-  document.getElementById("r-daylabel").textContent = DAY_FULL[selectedDay] + " Office Hours";
-}
-
-function updateMapIfNeeded() {
-  if (!currentCourse) return;
-  const bldgId = currentCourse.bldg[selectedDay];
-  if (bldgId === currentBldgId) return;
-  currentBldgId = bldgId;
-  const bldg = BUILDINGS_GPS[bldgId];
-  if (!bldg) return;
-  if (mapInstance) { mapInstance.remove(); mapInstance = null; }
-  mapInstance = L.map("map", { center:[bldg.lat,bldg.lng], zoom:17, zoomControl:true, scrollWheelZoom:false });
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution:'© <a href="https://openstreetmap.org">OpenStreetMap</a>', maxZoom:20 }).addTo(mapInstance);
-  const icon = L.divIcon({ className:"", html:`<div class="map-marker">${bldgId}</div>`, iconAnchor:[0,0], popupAnchor:[20,0] });
-  L.marker([bldg.lat,bldg.lng],{icon}).addTo(mapInstance)
-    .bindPopup(`<div class="popup-full" style="font-weight:700;font-size:13px">${bldg.full}</div>${bldg.room?`<div class="popup-room" style="color:var(--gold);font-weight:600;margin-top:3px">${bldg.room}</div>`:""}`,{maxWidth:240})
-    .openPopup();
-  document.getElementById("r-room").textContent = bldg.room || "";
-  document.getElementById("map-caption").innerHTML =
-    `<div class="map-caption-full">${bldg.full}</div>${bldg.room?`<div class="map-caption-addr">${bldg.room}</div>`:""}`;
-}
-
-const courseKeys = Object.keys(COURSES);
-
-function showResult(match) {
-  currentCourse = COURSES[match];
-  currentBldgId = null;
-  const today = todayAbbr();
-  if (today === "Sun" && currentCourse.type === "tdm") selectedDay = "Sun";
-  else { selectedDay = today || "Mon"; if (selectedDay === "Sun") selectedDay = "Mon"; }
-  document.getElementById("r-badge").textContent  = currentCourse.dept + " " + currentCourse.num;
-  document.getElementById("r-title").textContent  = currentCourse.title;
-  document.getElementById("r-note").textContent   = currentCourse.note;
-  document.getElementById("r-daybadges").innerHTML = DAYS.map(d =>
-    `<span class="day-badge" style="background:${DAY_COLORS[d]}18;border:1px solid ${DAY_COLORS[d]}44;color:${DAY_COLORS[d]}">${d}</span>`
-  ).join("");
-  document.getElementById("pills-section").style.display    = "none";
-  document.getElementById("day-tabs-section").style.display = "block";
-  document.getElementById("result-outer").style.display     = "block";
-  document.getElementById("notfound-section").style.display = "none";
-  renderDayTabs(); renderSlots(); updateMapIfNeeded();
-}
-
-function doSearch(key) {
-  const q = (key || document.getElementById("search-input").value).trim().toUpperCase().replace(/\s+/g,"");
-  const match = courseKeys.find(k => k.replace(/\s+/g,"") === q);
-  document.getElementById("suggestions").classList.remove("open");
-  if (match) {
-    document.getElementById("search-input").value = match;
-    showResult(match);
-  } else {
-    currentCourse = null;
-    document.getElementById("result-outer").style.display     = "none";
-    document.getElementById("day-tabs-section").style.display = "none";
-    document.getElementById("notfound-section").style.display = "block";
-    document.getElementById("pills-section").style.display    = "block";
-  }
-}
-
-document.getElementById("search-input").addEventListener("input", function() {
-  const q = this.value.trim().toUpperCase();
-  const suggEl = document.getElementById("suggestions");
-  if (!q) { suggEl.classList.remove("open"); return; }
-  const matches = courseKeys.filter(k =>
-    k.includes(q) || k.replace(/\s/g,"").includes(q.replace(/\s/g,"")) ||
-    COURSES[k].title.toUpperCase().includes(q)
-  );
-  if (!matches.length) { suggEl.classList.remove("open"); return; }
-  suggEl.innerHTML = matches.map(k =>
-    `<div class="sugg-item" onclick="doSearch('${k}')">
-       <span class="sugg-code">${k}</span>
-       <span class="sugg-title">${COURSES[k].title}</span>
-     </div>`
-  ).join("");
-  suggEl.classList.add("open");
-});
-document.getElementById("search-input").addEventListener("keydown", e => { if (e.key==="Enter") doSearch(); });
-document.addEventListener("click", e => {
-  if (!e.target.closest(".search-wrap")) document.getElementById("suggestions").classList.remove("open");
-});
-
-const pillsRow = document.getElementById("pills-row");
-courseKeys.forEach(k => {
-  const btn = document.createElement("button");
-  btn.className = "pill"; btn.textContent = k;
-  btn.onclick = () => doSearch(k);
-  pillsRow.appendChild(btn);
-});
 
 function previewPhoto(input) {
   if (!input.files || !input.files[0]) return;
@@ -1154,8 +325,6 @@ function submitHours() {
 
 updateClock();
 setInterval(updateClock, 1000);
-const today = todayAbbr();
-selectedDay = (today && today !== "Sun") ? today : "Mon";
 </script>
 </body>
 </html>
