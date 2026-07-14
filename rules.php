@@ -92,7 +92,7 @@
     <p>1st place: $100. 2nd place: $50. Paid out via Venmo or Zelle, so make sure your handle is on your submission if you're in the running.</p>
   </section>
 
-  <a class="cta" href="/">Submit your office hours</a>
+  <a class="cta" href="/#submit">Submit your office hours</a>
 </main>
 </body>
 </html>
