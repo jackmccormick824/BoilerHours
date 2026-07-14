@@ -70,27 +70,29 @@ if (!move_uploaded_file($file["tmp_name"], $destPath)) {
 
 $screenshot_path = "uploads/screenshots/" . $filename;
 
-$stmt = $conn->prepare(
-    "INSERT INTO submissions (full_name, purdue_email, professor_name, course_name, screenshot_path, venmo_handle)
-     VALUES (?, ?, ?, ?, ?, ?)"
-);
-$stmt->bind_param(
-    "ssssss",
-    $full_name,
-    $purdue_email,
-    $professor_name,
-    $course_name,
-    $screenshot_path,
-    $venmo_handle
-);
-
-if ($stmt->execute()) {
+try {
+    $stmt = $conn->prepare(
+        "INSERT INTO submissions (full_name, purdue_email, professor_name, course_name, screenshot_path, venmo_handle)
+         VALUES (?, ?, ?, ?, ?, ?)"
+    );
+    if (!$stmt) {
+        throw new Exception($conn->error);
+    }
+    $stmt->bind_param(
+        "ssssss",
+        $full_name,
+        $purdue_email,
+        $professor_name,
+        $course_name,
+        $screenshot_path,
+        $venmo_handle
+    );
+    $stmt->execute();
+    $stmt->close();
+    $conn->close();
     echo json_encode(["success" => true]);
-} else {
+} catch (\Throwable $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "error" => "Could not save your submission."]);
+    echo json_encode(["success" => false, "error" => "Database error: " . $e->getMessage()]);
 }
-
-$stmt->close();
-$conn->close();
 ?>

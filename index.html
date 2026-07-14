@@ -317,7 +317,7 @@ function submitHours() {
       document.getElementById('submit-form').style.display = 'none';
       document.getElementById('submit-success').style.display = 'block';
     } else {
-      errEl.textContent = 'Something went wrong sending your submission. Please email contact@boilerhours.com directly.';
+      errEl.textContent = data.error || 'Something went wrong sending your submission. Please email contact@boilerhours.com directly.';
       errEl.style.display = 'block';
       btn.disabled = false;
       spinner.style.display = 'none';
