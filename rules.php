@@ -21,7 +21,7 @@
     .contest-banner-sub { font-size:12px; }
   }
 
-  nav { position:sticky; top:0; z-index:1000; background:rgba(22,22,22,0.97); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; height:52px; backdrop-filter:blur(10px); gap:12px; }
+  nav { position:sticky; top:0; z-index:1000; background:rgba(22,22,22,0.97); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 16px; height:52px; backdrop-filter:blur(10px); gap:12px; }
   .nav-left { display:flex; align-items:center; gap:10px; flex-shrink:0; }
   .nav-logo { font-size:18px; font-weight:800; color:var(--gold); letter-spacing:-0.3px; }
   .nav-divider { width:1px; height:18px; background:var(--border); }
