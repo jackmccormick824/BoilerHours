@@ -149,7 +149,7 @@ $result = $conn->query($sql);
   <table>
     <thead>
       <tr>
-        <th>Name</th><th>Email</th><th>Professor</th><th>Course</th><th>Screenshot</th><th>Venmo/Zelle</th><th>Status</th><th>Actions</th>
+        <th>Name</th><th>Email</th><th>Professor</th><th>Course</th><th>Screenshot</th><th>Venmo/Zelle</th><th>Submitted</th><th>Status</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -164,6 +164,7 @@ $result = $conn->query($sql);
         <td><?= htmlspecialchars($row["course_name"]) ?><?php if ($isDup): ?> <span class="dup-badge">DUPLICATE</span><?php endif; ?></td>
         <td><a href="/<?= htmlspecialchars($row["screenshot_path"]) ?>" target="_blank"><img class="thumb" src="/<?= htmlspecialchars($row["screenshot_path"]) ?>" alt="screenshot" onerror="this.replaceWith('View file')"/></a></td>
         <td><?= htmlspecialchars($row["venmo_handle"] ?: "—") ?></td>
+        <td><?= htmlspecialchars(date("M j, Y g:i A", strtotime($row["submitted_at"]))) ?></td>
         <td class="<?= $row["verified"] ? 'verified' : 'pending' ?>"><?= $row["verified"] ? "Verified" : "Pending" ?></td>
         <td>
           <form class="inline" method="post">
