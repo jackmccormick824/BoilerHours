@@ -221,6 +221,7 @@
       <div class="check">✓</div>
       <h3>Thanks! We got it.</h3>
       <p>We'll review your submission and add it to BoilerHours soon.<br>Questions? Email <a href="mailto:contact@boilerhours.com" style="color:var(--gold)">contact@boilerhours.com</a></p>
+      <button class="cta-btn" onclick="resetSubmitForm()">SUBMIT ANOTHER</button>
     </div>
   </div>
 </div>
@@ -329,6 +330,23 @@ function submitHours() {
     btn.disabled = false;
     spinner.style.display = 'none';
   });
+}
+
+function resetSubmitForm() {
+  document.getElementById('sub-name').value = '';
+  document.getElementById('sub-email').value = '';
+  document.getElementById('sub-professor').value = '';
+  document.getElementById('sub-course').value = '';
+  document.getElementById('sub-venmo').value = '';
+  document.getElementById('sub-screenshot').value = '';
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-preview-img').src = '';
+  document.getElementById('photo-name').textContent = '';
+  document.getElementById('submit-error').style.display = 'none';
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('sending-spinner').style.display = 'none';
+  document.getElementById('submit-success').style.display = 'none';
+  document.getElementById('submit-form').style.display = 'block';
 }
 </script>
 </body>
