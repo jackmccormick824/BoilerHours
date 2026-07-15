@@ -73,8 +73,35 @@ if (isset($_POST["action"], $_POST["id"])) {
     exit;
 }
 
-$pendingOnly = isset($_GET["filter"]) && $_GET["filter"] === "pending";
-$sql = "SELECT * FROM submissions" . ($pendingOnly ? " WHERE verified = 0" : "") . " ORDER BY submitted_at DESC";
+$filter = isset($_GET["filter"]) ? $_GET["filter"] : '';
+$pendingOnly = $filter === "pending";
+$dupOnly = $filter === "duplicates";
+
+$dupResult = $conn->query(
+    "SELECT LOWER(TRIM(course_name)) AS ck, LOWER(TRIM(professor_name)) AS pk
+     FROM submissions
+     GROUP BY ck, pk
+     HAVING COUNT(*) > 1"
+);
+$duplicateKeys = [];
+if ($dupResult) {
+    while ($d = $dupResult->fetch_assoc()) {
+        $duplicateKeys[$d["ck"] . "|" . $d["pk"]] = true;
+    }
+}
+
+if ($dupOnly) {
+    $sql = "SELECT s.* FROM submissions s
+            JOIN (
+              SELECT LOWER(TRIM(course_name)) AS ck, LOWER(TRIM(professor_name)) AS pk
+              FROM submissions
+              GROUP BY ck, pk
+              HAVING COUNT(*) > 1
+            ) d ON LOWER(TRIM(s.course_name)) = d.ck AND LOWER(TRIM(s.professor_name)) = d.pk
+            ORDER BY s.submitted_at DESC";
+} else {
+    $sql = "SELECT * FROM submissions" . ($pendingOnly ? " WHERE verified = 0" : "") . " ORDER BY submitted_at DESC";
+}
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -103,6 +130,8 @@ $result = $conn->query($sql);
   .btn { border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; margin-right:6px; }
   .btn-verify { background:#34d399; color:#111; }
   .btn-reject { background:#f87171; color:#111; }
+  tr.dup-row { background:rgba(248,113,113,0.08); }
+  .dup-badge { display:inline-block; background:#f87171; color:#111; font-size:9px; font-weight:800; letter-spacing:0.04em; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
 </style>
 </head>
 <body>
@@ -110,8 +139,9 @@ $result = $conn->query($sql);
     <div>
       <h1>Submissions</h1>
       <div class="filters">
-        <a href="admin.php" class="<?= !$pendingOnly ? 'active' : '' ?>">All</a>
+        <a href="admin.php" class="<?= (!$pendingOnly && !$dupOnly) ? 'active' : '' ?>">All</a>
         <a href="admin.php?filter=pending" class="<?= $pendingOnly ? 'active' : '' ?>">Pending only</a>
+        <a href="admin.php?filter=duplicates" class="<?= $dupOnly ? 'active' : '' ?>">Duplicates only</a>
       </div>
     </div>
     <a class="logout" href="admin.php?logout=1">Log out</a>
@@ -123,12 +153,15 @@ $result = $conn->query($sql);
       </tr>
     </thead>
     <tbody>
-      <?php while ($row = $result->fetch_assoc()): ?>
-      <tr>
+      <?php while ($row = $result->fetch_assoc()):
+        $rowKey = strtolower(trim($row["course_name"])) . "|" . strtolower(trim($row["professor_name"]));
+        $isDup = isset($duplicateKeys[$rowKey]);
+      ?>
+      <tr class="<?= $isDup ? 'dup-row' : '' ?>">
         <td><?= htmlspecialchars($row["full_name"]) ?></td>
         <td><?= htmlspecialchars($row["purdue_email"]) ?></td>
         <td><?= htmlspecialchars($row["professor_name"]) ?></td>
-        <td><?= htmlspecialchars($row["course_name"]) ?></td>
+        <td><?= htmlspecialchars($row["course_name"]) ?><?php if ($isDup): ?> <span class="dup-badge">DUPLICATE</span><?php endif; ?></td>
         <td><a href="/<?= htmlspecialchars($row["screenshot_path"]) ?>" target="_blank"><img class="thumb" src="/<?= htmlspecialchars($row["screenshot_path"]) ?>" alt="screenshot" onerror="this.replaceWith('View file')"/></a></td>
         <td><?= htmlspecialchars($row["venmo_handle"] ?: "—") ?></td>
         <td class="<?= $row["verified"] ? 'verified' : 'pending' ?>"><?= $row["verified"] ? "Verified" : "Pending" ?></td>
