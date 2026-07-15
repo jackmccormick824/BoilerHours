@@ -19,7 +19,7 @@
     --faint: #666;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
 
   /* ── CONTEST BANNER ── */
   .contest-banner {
@@ -87,8 +87,9 @@
 
   .page { display: none; }
   .page.active { display: block; }
-  .nav-tabs { display: flex; gap: 4px; margin-left: 16px; }
-  .nav-tab { background: none; border: none; color: #555; font-size: 12px; font-family: inherit; font-weight: 600; padding: 6px 12px; border-radius: 20px; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; }
+  .nav-tabs { display: flex; gap: 4px; margin-left: 16px; min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab { background: none; border: none; color: #555; font-size: 12px; font-family: inherit; font-weight: 600; padding: 6px 12px; border-radius: 20px; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; flex-shrink: 0; white-space: nowrap; }
   .nav-tab:hover { color: var(--gold); }
   .nav-tab.active { color: var(--gold); background: rgba(207,185,145,0.1); }
 

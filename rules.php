@@ -8,7 +8,7 @@
 <style>
   :root { --gold:#CFB991; --bg:#181818; --bg2:#222; --border:#333; --text:#f0f0f0; --sub:#999; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; overflow-x:hidden; }
 
   .contest-banner { background:var(--gold); color:#111; padding:22px 20px; text-align:center; position:relative; }
   .contest-banner-title { font-size:20px; font-weight:900; letter-spacing:-0.2px; margin-bottom:4px; }
@@ -27,8 +27,9 @@
   .nav-logo { font-size:18px; font-weight:800; color:var(--gold); letter-spacing:-0.3px; }
   .nav-divider { width:1px; height:18px; background:var(--border); }
   .nav-sub { color:#555; font-size:12px; }
-  .nav-tabs { display:flex; gap:4px; margin-left:16px; }
-  .nav-tab { color:#555; font-size:12px; font-weight:600; padding:6px 12px; border-radius:20px; text-decoration:none; letter-spacing:0.04em; }
+  .nav-tabs { display:flex; gap:4px; margin-left:16px; min-width:0; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .nav-tabs::-webkit-scrollbar { display:none; }
+  .nav-tab { color:#555; font-size:12px; font-weight:600; padding:6px 12px; border-radius:20px; text-decoration:none; letter-spacing:0.04em; flex-shrink:0; white-space:nowrap; }
   .nav-tab:hover { color:var(--gold); }
   .nav-tab.active { color:var(--gold); background:rgba(207,185,145,0.1); }
   @media (max-width:480px) {
