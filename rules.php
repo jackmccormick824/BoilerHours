@@ -37,7 +37,7 @@
     nav { padding:0 12px; }
   }
 
-  main { max-width:640px; margin:0 auto; padding:40px 18px 60px; }
+  main { max-width:600px; margin:0 auto; padding:40px 18px 60px; }
   h1 { font-size:24px; font-weight:800; margin-bottom:6px; }
   p.sub { color:var(--sub); font-size:13px; margin-bottom:32px; }
   section { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px 22px; margin-bottom:16px; }
