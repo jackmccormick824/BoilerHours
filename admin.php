@@ -29,7 +29,7 @@ if (empty($_SESSION["admin_logged_in"])) {
     <head>
     <meta charset="UTF-8"/>
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFhMWExYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMyIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjQ0ZCOTkxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CPC90ZXh0Pgo8L3N2Zz4=" type="image/svg+xml">
-    <title>Admin Login | BoilerHours</title>
+    <title>BoilerHours | Purdue Office Hours</title>
     <style>
       body { background:#181818; color:#f0f0f0; font-family:'Segoe UI',system-ui,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
       form { background:#222; border:1px solid #333; border-radius:12px; padding:32px; width:280px; }
@@ -82,7 +82,7 @@ $result = $conn->query($sql);
 <head>
 <meta charset="UTF-8"/>
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFhMWExYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMyIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjQ0ZCOTkxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CPC90ZXh0Pgo8L3N2Zz4=" type="image/svg+xml">
-<title>Admin | BoilerHours</title>
+<title>BoilerHours | Purdue Office Hours</title>
 <style>
   :root { --gold:#CFB991; --bg:#181818; --bg2:#222; --bg3:#2a2a2a; --border:#333; --text:#f0f0f0; --sub:#999; }
   * { box-sizing:border-box; }

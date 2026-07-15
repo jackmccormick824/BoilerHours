@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Contest Rules | BoilerHours</title>
+<title>BoilerHours | Purdue Office Hours</title>
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFhMWExYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMyIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjQ0ZCOTkxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CPC90ZXh0Pgo8L3N2Zz4=" type="image/svg+xml">
 <style>
   :root { --gold:#CFB991; --bg:#181818; --bg2:#222; --border:#333; --text:#f0f0f0; --sub:#999; }
@@ -37,7 +37,7 @@
   }
 
   main { max-width:640px; margin:0 auto; padding:40px 18px 60px; }
-  h1 { font-size:26px; font-weight:800; margin-bottom:8px; }
+  h1 { font-size:24px; font-weight:800; margin-bottom:6px; }
   p.sub { color:var(--sub); font-size:13px; margin-bottom:32px; }
   section { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px 22px; margin-bottom:16px; }
   section h2 { font-size:14px; color:var(--gold); letter-spacing:0.04em; margin-bottom:8px; }
