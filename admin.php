@@ -90,6 +90,24 @@ if ($dupResult) {
     }
 }
 
+$statsRow = ["total" => 0, "verified" => 0, "pending" => 0];
+$statsResult = $conn->query("SELECT COUNT(*) AS total, SUM(verified=1) AS verified, SUM(verified=0) AS pending FROM submissions");
+if ($statsResult) {
+    $statsRow = $statsResult->fetch_assoc();
+}
+$totalCount = (int)$statsRow["total"];
+$verifiedCount = (int)$statsRow["verified"];
+$pendingCount = (int)$statsRow["pending"];
+
+$dupCountResult = $conn->query(
+    "SELECT COUNT(*) AS cnt FROM submissions s
+     JOIN (
+       SELECT LOWER(TRIM(course_name)) AS ck, LOWER(TRIM(professor_name)) AS pk
+       FROM submissions GROUP BY ck, pk HAVING COUNT(*) > 1
+     ) d ON LOWER(TRIM(s.course_name)) = d.ck AND LOWER(TRIM(s.professor_name)) = d.pk"
+);
+$dupRowCount = $dupCountResult ? (int)$dupCountResult->fetch_assoc()["cnt"] : 0;
+
 if ($dupOnly) {
     $sql = "SELECT s.* FROM submissions s
             JOIN (
@@ -132,6 +150,10 @@ $result = $conn->query($sql);
   .btn-reject { background:#f87171; color:#111; }
   tr.dup-row { background:rgba(248,113,113,0.08); }
   .dup-badge { display:inline-block; background:#f87171; color:#111; font-size:9px; font-weight:800; letter-spacing:0.04em; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+  .stats { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .stat { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px 18px; min-width:90px; }
+  .stat-num { font-size:22px; font-weight:800; color:var(--gold); }
+  .stat-label { font-size:11px; color:var(--sub); text-transform:uppercase; letter-spacing:0.05em; margin-top:2px; }
 </style>
 </head>
 <body>
@@ -145,6 +167,12 @@ $result = $conn->query($sql);
       </div>
     </div>
     <a class="logout" href="admin.php?logout=1">Log out</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num"><?= $totalCount ?></div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num"><?= $pendingCount ?></div><div class="stat-label">Pending</div></div>
+    <div class="stat"><div class="stat-num"><?= $verifiedCount ?></div><div class="stat-label">Verified</div></div>
+    <div class="stat"><div class="stat-num"><?= $dupRowCount ?></div><div class="stat-label">Duplicates</div></div>
   </div>
   <table>
     <thead>
