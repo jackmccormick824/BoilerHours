@@ -121,7 +121,6 @@
   .photo-upload { border: 2px dashed var(--border); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.15s; position: relative; }
   .photo-upload:hover { border-color: var(--gold); }
   .photo-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .photo-upload-icon { font-size: 24px; margin-bottom: 6px; }
   .photo-upload-text { color: var(--sub); font-size: 13px; }
   .photo-upload-text strong { color: var(--gold); }
   .photo-preview { display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; }
@@ -203,7 +202,6 @@
         <label>SCREENSHOT OF OFFICE HOURS <span style="color:var(--gold)">*</span></label>
         <div class="photo-upload" id="photo-upload-area">
           <input type="file" id="sub-screenshot" accept="image/*,application/pdf" onchange="previewPhoto(this)" required />
-          <div class="photo-upload-icon">📷</div>
           <div class="photo-upload-text">Drop a screenshot here or <strong>browse</strong><br><span style="font-size:11px;color:#444">Image or PDF, up to 5MB. Syllabus, course page, etc.</span></div>
         </div>
         <div class="photo-preview" id="photo-preview">

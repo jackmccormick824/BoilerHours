@@ -1,24 +1,20 @@
 # BoilerHours
 
-**Find Purdue office hours. Actually show up.**
+Find Purdue office hours. Actually show up.
 
-Live at [boilerhours.com](https://boilerhours.com). Started as a searchable directory of TA and instructor office hours for Purdue courses, currently running a submission contest to rebuild that directory for Fall 2026.
+Live at [boilerhours.com](https://boilerhours.com). Started out as a searchable directory of TA and instructor office hours. Right now it's running a submission contest to rebuild that directory for Fall 2026, so the homepage temporarily points people at the submit form instead of a course search.
 
----
+## What's running right now
 
-## Current: Fall 2026 Submission Contest
+The contest: submit an office hour, get verified, show up on the leaderboard, win money. That means:
 
-The homepage no longer has the old course search (see [Spring 2026](#spring-2026-office-hours-archived) below for why). Right now the site is focused on collecting fresh office hours submissions through a contest:
+- A submit form (course, professor, Purdue email, full name, a required screenshot as proof, optional Venmo/Zelle for payout)
+- `admin.php`, a password-protected page where I review submissions, flag duplicates, and verify or reject them
+- `leaderboard.php`, ranking verified + unique submissions by submitter
+- `rules.php`, the actual contest rules
+- A banner on the homepage pointing at all of it
 
-- **Contest banner** on every page, dismissible, links to the rules
-- **Submit form** — full name, Purdue email, professor name, course, a required screenshot (image or PDF, up to 5MB) as proof, and an optional Venmo/Zelle handle for prize payout
-- **`admin.php`** — password-protected review queue. Lists submissions newest first, lets you Verify or Reject (Reject deletes the row) each one, with a pending-only filter
-- **`leaderboard.php`** — verified + unique submissions grouped by submitter email, ranked by count
-- **`rules.php`** — contest dates, uniqueness rule, screenshot requirement, prizes, payout method, winner announcement date
-
-### Database
-
-Submissions are stored in MySQL, not flat files. The `submissions` table:
+Submissions land in a MySQL `submissions` table, not flat files:
 
 | Column | Type | Notes |
 |---|---|---|
@@ -27,58 +23,45 @@ Submissions are stored in MySQL, not flat files. The `submissions` table:
 | `purdue_email` | varchar(100) | required |
 | `professor_name` | varchar(100) | required |
 | `course_name` | varchar(100) | required |
-| `screenshot_path` | varchar(255) | required, relative path under `uploads/screenshots/` |
+| `screenshot_path` | varchar(255) | path under `uploads/screenshots/` |
 | `venmo_handle` | varchar(100) | optional |
-| `verified` | tinyint(1) | default 0, admin sets to 1 |
-| `is_unique` | tinyint(1) | default 1 |
-| `submitted_at` | datetime | default current timestamp |
+| `verified` | tinyint(1) | 0 until an admin approves it |
+| `is_unique` | tinyint(1) | defaults to 1 |
+| `submitted_at` | datetime | |
 
-### Server-only config files (never committed)
+## Credentials
 
-Two files hold real credentials and are gitignored on purpose. They have to be created directly on Hostinger (File Manager or SFTP), not pushed through git:
+`db_connect.php` and `admin_config.php` hold real passwords and are gitignored on purpose, they only exist on the server (created by hand through Hostinger's File Manager) and never go through git. `db_connect.example.php` and `admin_config.example.php` show the shape without the actual values. If either real file is missing, `submit.php` and `admin.php` just say "server isn't configured yet" instead of blowing up.
 
-- **`db_connect.php`** — MySQL host/dbname/username/password. Template in `db_connect.example.php`.
-- **`admin_config.php`** — admin login username + a `password_hash()`'d password for `admin.php`. Template in `admin_config.example.php`.
+One gotcha to watch for: `uploads/screenshots/` only has a `.gitkeep` tracked in git, the actual uploaded files aren't. If Hostinger's auto-deploy ever does a hard reset instead of a merge on push, it'll wipe those files. If screenshots start 404ing right after a deploy, that's probably why.
 
-If either is missing on the server, `submit.php` and `admin.php` show a plain "server isn't configured yet" message instead of crashing.
-
-**Known gotcha:** `uploads/screenshots/` holds user-uploaded files and is only tracked via a `.gitkeep`. If Hostinger's auto-deploy ever does a hard reset/re-checkout instead of a plain merge on push, it can wipe uploaded files that aren't in git. Worth confirming with Hostinger's deploy behavior if screenshots start 404ing after a push.
-
-## Tech Stack
-
-- Vanilla HTML/CSS/JS on the frontend, no frameworks, no build step
-- PHP + MySQL (mysqli) for submissions, admin, and the leaderboard
-- Hosted on Hostinger with GitHub auto-deploy
-
-## Project Structure
+## Project layout
 
 ```
 boilerhours/
-├── index.html                   # Homepage + submit form (single-file SPA-style)
-├── submit.php                   # Form handler — validates, saves screenshot, inserts into DB
-├── admin.php                    # Password-protected submission review queue
-├── leaderboard.php              # Verified + unique submission counts, ranked
-├── rules.php                    # Contest rules page
-├── db_connect.example.php       # Placeholder DB credentials template
-├── admin_config.example.php     # Placeholder admin login template
-├── uploads/screenshots/         # Uploaded proof screenshots (gitignored contents)
-├── backup-spring-2026/          # Archived Spring 2026 static site, read-only
-└── README.md
+├── index.html                # Live homepage + submit form
+├── submit.php                 # Handles the form, saves the screenshot, writes to MySQL
+├── admin.php                  # Review queue, login required
+├── leaderboard.php
+├── rules.php
+├── db_connect.example.php     # Real one lives only on the server
+├── admin_config.example.php   # Same deal
+├── uploads/screenshots/       # Where proof screenshots land
+├── fall_2026/                 # Next semester's page, same look as backup-spring-2026, courses not filled in yet
+└── backup-spring-2026/        # The old live site, frozen, don't touch
 ```
 
-`db_connect.php` and `admin_config.php` exist locally/on-server but are gitignored, they won't show up in a fresh clone.
-
-## Local Development
+## Running it locally
 
 ```bash
 php -S localhost:8000
 ```
 
-Then go to `http://localhost:8000`. You'll need a local `db_connect.php` (copy `db_connect.example.php` and point it at a local MySQL instance with the `submissions` table) for the form, admin page, and leaderboard to work.
+The form, admin page, and leaderboard all need a local `db_connect.php` pointed at a MySQL database with the `submissions` table above. Copy `db_connect.example.php` and fill in real values.
 
-## Deployment
+## Deploying
 
-Connected to Hostinger via GitHub auto-deploy. Push to `main` and boilerhours.com updates within seconds.
+Push to `main` and Hostinger picks it up automatically:
 
 ```bash
 git add .
@@ -86,33 +69,18 @@ git commit -m "your message"
 git push
 ```
 
-`db_connect.php` and `admin_config.php` are never part of that push, they live only on the server.
+`db_connect.php` and `admin_config.php` never get touched by this since they're gitignored.
 
-## Spring 2026 Office Hours (archived)
+## Spring 2026 (the old site)
 
-Before the contest, the homepage was a hardcoded search tool covering these courses for Spring 2026:
+Before the contest, boilerhours.com was a real course search: type in CS 18200 or MA 16100, get office hours, a live "NOW" indicator for whoever's in right now, a campus map, the works. Ten courses were hardcoded straight into `index.html` — CS 18200, CS 24000, EAPS 11200, the MA sequence, and the three TDM courses.
 
-| Course | Title |
-|---|---|
-| CS 18200 | Foundations of Computer Science |
-| CS 24000 | Programming in C |
-| EAPS 11200 | The Earth Through Time |
-| MA 15300 | Mathematics For Elementary Education I |
-| MA 16100 | Plane Analytic Geometry And Calculus I |
-| MA 16200 | Plane Analytic Geometry And Calculus II |
-| MA 26100 | Multivariate Calculus |
-| TDM 10200 | Introduction to Data Science |
-| TDM 20200 | Data Science in the Data Mine |
-| TDM 30200 | Advanced Data Science in the Data Mine |
-
-That version had course-code search, a live "NOW" indicator for whichever slot was active, day tabs, an interactive campus map per course, in-person/Zoom tags for TDM courses, and a lab section browser for CS 24000. All of that data was hardcoded directly in `index.html`.
-
-It's preserved, untouched, in **`backup-spring-2026/index.html`** for reference. Treat it as read-only, it's not linked from the live site and isn't part of the current build.
+That version is sitting untouched in `backup-spring-2026/index.html`. Don't edit it, it's just there for reference. `fall_2026/index.html` reuses its layout and logic but starts with all the course data emptied out, ready to be filled in once Fall's schedules are in.
 
 ## Contact
 
-Questions or want to submit office hours? Email [contact@boilerhours.com](mailto:contact@boilerhours.com)
+contact@boilerhours.com
 
 ---
 
-*Not affiliated with Purdue University.*
+Not affiliated with Purdue University.
