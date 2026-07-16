@@ -313,7 +313,12 @@ function submitHours() {
     method: 'POST',
     body: formData
   })
-  .then(r => r.json())
+  .then(r => {
+    if (r.status === 429) {
+      throw new Error('RATE_LIMITED');
+    }
+    return r.json();
+  })
   .then(data => {
     if (data.success) {
       document.getElementById('submit-form').style.display = 'none';
@@ -325,8 +330,10 @@ function submitHours() {
       spinner.style.display = 'none';
     }
   })
-  .catch(() => {
-    errEl.textContent = 'Could not reach the server. Please email contact@boilerhours.com directly.';
+  .catch(err => {
+    errEl.textContent = err.message === 'RATE_LIMITED'
+      ? "You're submitting too fast. Wait a few seconds and try again, don't leave the page."
+      : 'Could not reach the server. Please email contact@boilerhours.com directly.';
     errEl.style.display = 'block';
     btn.disabled = false;
     spinner.style.display = 'none';
