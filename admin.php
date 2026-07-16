@@ -192,7 +192,11 @@ $result = $conn->query($sql);
         <td><?= htmlspecialchars($row["course_name"]) ?><?php if ($isDup): ?> <span class="dup-badge">DUPLICATE</span><?php endif; ?></td>
         <td><a href="/<?= htmlspecialchars($row["screenshot_path"]) ?>" target="_blank"><img class="thumb" src="/<?= htmlspecialchars($row["screenshot_path"]) ?>" alt="screenshot" onerror="this.replaceWith('View file')"/></a></td>
         <td><?= htmlspecialchars($row["venmo_handle"] ?: "—") ?></td>
-        <td><?= htmlspecialchars(date("M j, Y g:i A", strtotime($row["submitted_at"]))) ?></td>
+        <td><?php
+          $submittedDt = new DateTime($row["submitted_at"], new DateTimeZone("UTC"));
+          $submittedDt->setTimezone(new DateTimeZone("America/New_York"));
+          echo htmlspecialchars($submittedDt->format("M j, Y g:i A") . " ET");
+        ?></td>
         <td class="<?= $row["verified"] ? 'verified' : 'pending' ?>"><?= $row["verified"] ? "Verified" : "Pending" ?></td>
         <td>
           <form class="inline" method="post">
