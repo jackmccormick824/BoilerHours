@@ -77,7 +77,7 @@ if (!file_exists(__DIR__ . "/db_connect.php")) {
 
 <div class="contest-banner" id="contest-banner">
   <button class="contest-banner-close" onclick="document.getElementById('contest-banner').style.display='none'" aria-label="Dismiss">&times;</button>
-  <div class="contest-banner-title">Submit office hours Aug 24 to Sept 7 and win $100 or $50</div>
+  <div class="contest-banner-title">Submit office hours Aug 24 to Sept 7 and win $100</div>
   <div class="contest-banner-sub">Screenshot required, verified entries only. <a href="rules.php" class="contest-banner-link">See the rules</a></div>
 </div>
 

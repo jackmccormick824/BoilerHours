@@ -51,7 +51,7 @@
 
 <div class="contest-banner" id="contest-banner">
   <button class="contest-banner-close" onclick="document.getElementById('contest-banner').style.display='none'" aria-label="Dismiss">&times;</button>
-  <div class="contest-banner-title">Submit office hours Aug 24 to Sept 7 and win $100 or $50</div>
+  <div class="contest-banner-title">Submit office hours Aug 24 to Sept 7 and win $100</div>
   <div class="contest-banner-sub">Screenshot required, verified entries only. <a href="/#submit" class="contest-banner-link">Submit yours</a></div>
 </div>
 
@@ -75,7 +75,7 @@
 
   <section>
     <h2>DATES</h2>
-    <p>Submissions open Aug 24 and close Sept 7 at 11:59pm. Anything submitted after the cutoff doesn't count. Winners get announced Sept 10.</p>
+    <p>Submissions open Aug 24 and close Sept 7 at 11:59pm. Anything submitted after the cutoff doesn't count. Winner gets announced Sept 10.</p>
   </section>
 
   <section>
@@ -90,7 +90,7 @@
 
   <section>
     <h2>PRIZES</h2>
-    <p>1st place: $100. 2nd place: $50. Paid out via Venmo or Zelle, so make sure your handle is on your submission if you're in the running.</p>
+    <p>1st place: $100. Paid out via Venmo or Zelle, so make sure your handle is on your submission if you're in the running.</p>
   </section>
 
   <a class="cta" href="/#submit">Submit your office hours</a>
