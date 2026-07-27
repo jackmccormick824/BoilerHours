@@ -7,7 +7,8 @@ if (!file_exists(__DIR__ . "/db_connect.php")) {
 } else {
     require_once __DIR__ . "/db_connect.php";
     $result = $conn->query(
-        "SELECT purdue_email, MAX(full_name) AS full_name, COUNT(*) AS cnt
+        "SELECT purdue_email, MAX(full_name) AS full_name, COUNT(*) AS cnt,
+                GROUP_CONCAT(DISTINCT course_name ORDER BY course_name SEPARATOR ', ') AS classes
          FROM submissions
          WHERE verified = 1 AND is_unique = 1
          GROUP BY purdue_email
@@ -69,6 +70,7 @@ if (!file_exists(__DIR__ . "/db_connect.php")) {
   th { color:var(--sub); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; }
   tr:last-child td { border-bottom:none; }
   td.rank { color:var(--gold); font-weight:800; font-family:monospace; }
+  td.classes { color:var(--sub); font-size:13px; }
   .empty { text-align:center; color:#555; padding:32px 0; font-size:14px; }
   .db-error { text-align:center; color:#f87171; padding:32px 0; font-size:14px; }
 </style>
@@ -102,14 +104,15 @@ if (!file_exists(__DIR__ . "/db_connect.php")) {
     <div class="db-error"><?= htmlspecialchars($dbError) ?></div>
   <?php else: ?>
   <table>
-    <thead><tr><th>Rank</th><th>Name</th><th>Count</th></tr></thead>
+    <thead><tr><th>Rank</th><th>Name</th><th>Classes</th><th>Count</th></tr></thead>
     <tbody>
       <?php if (empty($rows)): ?>
-      <tr><td colspan="3" class="empty">No verified submissions yet. Be the first.</td></tr>
+      <tr><td colspan="4" class="empty">No verified submissions yet. Be the first.</td></tr>
       <?php else: foreach ($rows as $i => $row): ?>
       <tr>
         <td class="rank">#<?= $i + 1 ?></td>
         <td><?= htmlspecialchars($row["full_name"]) ?></td>
+        <td class="classes"><?= htmlspecialchars($row["classes"]) ?></td>
         <td><?= (int)$row["cnt"] ?></td>
       </tr>
       <?php endforeach; endif; ?>

@@ -68,6 +68,14 @@ if (isset($_POST["action"], $_POST["id"])) {
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $stmt->close();
+    } elseif ($_POST["action"] === "edit") {
+        $courseName = trim($_POST["course_name"] ?? "");
+        if ($courseName !== "") {
+            $stmt = $conn->prepare("UPDATE submissions SET course_name = ? WHERE id = ?");
+            $stmt->bind_param("si", $courseName, $id);
+            $stmt->execute();
+            $stmt->close();
+        }
     }
     header("Location: admin.php" . (isset($_GET["filter"]) ? "?filter=" . urlencode($_GET["filter"]) : ""));
     exit;
@@ -148,6 +156,8 @@ $result = $conn->query($sql);
   .btn { border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; margin-right:6px; }
   .btn-verify { background:#34d399; color:#111; }
   .btn-reject { background:#f87171; color:#111; }
+  .btn-save { background:var(--gold); color:#111; }
+  .course-input { background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px; font-size:12px; width:110px; margin-right:4px; font-family:inherit; }
   tr.dup-row { background:rgba(248,113,113,0.08); }
   .dup-badge { display:inline-block; background:#f87171; color:#111; font-size:9px; font-weight:800; letter-spacing:0.04em; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
   .stats { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
@@ -189,7 +199,15 @@ $result = $conn->query($sql);
         <td><?= htmlspecialchars($row["full_name"]) ?></td>
         <td><?= htmlspecialchars($row["purdue_email"]) ?></td>
         <td><?= htmlspecialchars($row["professor_name"]) ?></td>
-        <td><?= htmlspecialchars($row["course_name"]) ?><?php if ($isDup): ?> <span class="dup-badge">DUPLICATE</span><?php endif; ?></td>
+        <td>
+          <form class="inline" method="post">
+            <input type="hidden" name="id" value="<?= (int)$row['id'] ?>"/>
+            <input type="hidden" name="action" value="edit"/>
+            <input type="text" name="course_name" class="course-input" value="<?= htmlspecialchars($row["course_name"]) ?>"/>
+            <button class="btn btn-save" type="submit">Save</button>
+          </form>
+          <?php if ($isDup): ?> <span class="dup-badge">DUPLICATE</span><?php endif; ?>
+        </td>
         <td><a href="/<?= htmlspecialchars($row["screenshot_path"]) ?>" target="_blank"><img class="thumb" src="/<?= htmlspecialchars($row["screenshot_path"]) ?>" alt="screenshot" onerror="this.replaceWith('View file')"/></a></td>
         <td><?= htmlspecialchars($row["venmo_handle"] ?: "—") ?></td>
         <td><?php
