@@ -28,6 +28,7 @@ try {
     if ($full_name === "")      fail("Full name is required.");
     if ($purdue_email === "")   fail("Purdue email is required.");
     if (!filter_var($purdue_email, FILTER_VALIDATE_EMAIL)) fail("Please enter a valid email address.");
+    if (!preg_match('/@purdue\.edu$/i', $purdue_email)) fail("Please use your Purdue email (must end in @purdue.edu).");
     if ($professor_name === "") fail("Professor name is required.");
     if ($course_name === "")    fail("Course name is required.");
 

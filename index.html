@@ -273,6 +273,11 @@ function submitHours() {
     errEl.style.display = 'block';
     return;
   }
+  if (!/@purdue\.edu$/i.test(email)) {
+    errEl.textContent = 'Please use your Purdue email (must end in @purdue.edu).';
+    errEl.style.display = 'block';
+    return;
+  }
   if (!professor) {
     errEl.textContent = 'Please enter the professor\'s name.';
     errEl.style.display = 'block';
