@@ -65,7 +65,9 @@ try {
     }
     $ext = $allowedTypes[$mimeType];
 
-    $uploadDir = __DIR__ . "/uploads/screenshots/";
+    // Stored one level above public_html, outside the git-deployed tree, so a
+    // Hostinger auto-deploy can never wipe submitted screenshots.
+    $uploadDir = dirname(__DIR__) . "/screenshot_storage/";
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
@@ -78,7 +80,7 @@ try {
         fail("Could not save the uploaded screenshot.");
     }
 
-    $screenshot_path = "uploads/screenshots/" . $filename;
+    $screenshot_path = $filename;
 
     $stmt = $conn->prepare(
         "INSERT INTO submissions (full_name, purdue_email, professor_name, course_name, screenshot_path, venmo_handle)

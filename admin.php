@@ -208,7 +208,15 @@ $result = $conn->query($sql);
           </form>
           <?php if ($isDup): ?> <span class="dup-badge">DUPLICATE</span><?php endif; ?>
         </td>
-        <td><a href="/<?= htmlspecialchars($row["screenshot_path"]) ?>" target="_blank"><img class="thumb" src="/<?= htmlspecialchars($row["screenshot_path"]) ?>" alt="screenshot" onerror="this.replaceWith('View file')"/></a></td>
+        <?php
+          // Old submissions stored a web path under uploads/screenshots/; new
+          // ones store a bare filename served from outside public_html.
+          $shot = $row["screenshot_path"];
+          $shotUrl = (strpos($shot, "/") !== false)
+            ? "/" . htmlspecialchars($shot)
+            : "view_screenshot.php?file=" . urlencode($shot);
+        ?>
+        <td><a href="<?= $shotUrl ?>" target="_blank"><img class="thumb" src="<?= $shotUrl ?>" alt="screenshot" onerror="this.replaceWith('View file')"/></a></td>
         <td><?= htmlspecialchars($row["venmo_handle"] ?: "—") ?></td>
         <td><?php
           $submittedDt = new DateTime($row["submitted_at"], new DateTimeZone("UTC"));
