@@ -31,11 +31,18 @@ function rateLimited($ip, $maxAttempts = 6, $windowSeconds = 600) {
 
     // Prune stale timestamps for every IP so the file doesn't grow forever.
     foreach ($data as $key => $timestamps) {
-        $data[$key] = array_values(array_filter($timestamps, fn($t) => $t > $cutoff));
-        if (empty($data[$key])) unset($data[$key]);
+        $fresh = [];
+        foreach ($timestamps as $t) {
+            if ($t > $cutoff) $fresh[] = $t;
+        }
+        if (empty($fresh)) {
+            unset($data[$key]);
+        } else {
+            $data[$key] = $fresh;
+        }
     }
 
-    $attempts = $data[$ip] ?? [];
+    $attempts = isset($data[$ip]) ? $data[$ip] : [];
     $limited = count($attempts) >= $maxAttempts;
 
     if (!$limited) {
@@ -57,7 +64,8 @@ try {
 
     // Honeypot: real users never fill this in. Bots that auto-fill every
     // field do, so pretend success without touching anything.
-    if (!empty(trim($_POST["hp_field"] ?? ""))) {
+    $hp_field = isset($_POST["hp_field"]) ? trim($_POST["hp_field"]) : "";
+    if ($hp_field !== "") {
         echo json_encode(["success" => true]);
         exit;
     }
