@@ -16,8 +16,57 @@ function fail($msg) {
     exit;
 }
 
+function rateLimited($ip, $maxAttempts = 6, $windowSeconds = 600) {
+    $storePath = dirname(__DIR__) . "/rate_limit.json";
+    $fh = fopen($storePath, "c+");
+    if (!$fh) return false; // fail open, don't block submissions over a storage hiccup
+    flock($fh, LOCK_EX);
+
+    $raw = stream_get_contents($fh);
+    $data = $raw ? json_decode($raw, true) : [];
+    if (!is_array($data)) $data = [];
+
+    $now = time();
+    $cutoff = $now - $windowSeconds;
+
+    // Prune stale timestamps for every IP so the file doesn't grow forever.
+    foreach ($data as $key => $timestamps) {
+        $data[$key] = array_values(array_filter($timestamps, fn($t) => $t > $cutoff));
+        if (empty($data[$key])) unset($data[$key]);
+    }
+
+    $attempts = $data[$ip] ?? [];
+    $limited = count($attempts) >= $maxAttempts;
+
+    if (!$limited) {
+        $attempts[] = $now;
+        $data[$ip] = $attempts;
+    }
+
+    ftruncate($fh, 0);
+    rewind($fh);
+    fwrite($fh, json_encode($data));
+    flock($fh, LOCK_UN);
+    fclose($fh);
+
+    return $limited;
+}
+
 try {
     require_once __DIR__ . "/db_connect.php";
+
+    // Honeypot: real users never fill this in. Bots that auto-fill every
+    // field do, so pretend success without touching anything.
+    if (!empty(trim($_POST["hp_field"] ?? ""))) {
+        echo json_encode(["success" => true]);
+        exit;
+    }
+
+    $ip = $_SERVER["REMOTE_ADDR"] ?? "unknown";
+    if (rateLimited($ip)) {
+        http_response_code(429);
+        fail("You're submitting too fast. Wait a few minutes and try again.");
+    }
 
     $full_name      = isset($_POST["full_name"])      ? trim($_POST["full_name"])      : "";
     $purdue_email   = isset($_POST["purdue_email"])   ? trim($_POST["purdue_email"])   : "";
